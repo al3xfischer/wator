@@ -13,10 +13,9 @@ namespace Wator.MPI.Tests
         [InlineData(3, 2)]
         public void CalculateUpperTarget(int currentRank, int expectedTargetRank)
         {
-            var size = 4;
-            var actual = (currentRank - 1 + size) % size;
-            var result = actual == 0 ? size - 1 : actual;
-            Assert.Equal(result, expectedTargetRank);
+            var size = 3;
+            var actual = (currentRank + 1) % size + 1;
+            Assert.Equal(actual, expectedTargetRank);
         }
 
         [Theory]
@@ -25,10 +24,9 @@ namespace Wator.MPI.Tests
         [InlineData(3, 1)]
         public void CalculateLowerTarget(int currentRank, int expectedTargetRank)
         {
-            var size = 4;
-            var actual = (currentRank + 1 + size) % size;
-            var result = actual == 0 ? 1 : actual;
-            Assert.Equal(result, expectedTargetRank);
+            var size = 3;
+            var actual = (currentRank % size) + 1;
+            Assert.Equal(actual, expectedTargetRank);
         }
     }
 }
