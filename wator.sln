@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30907.101
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B722BF73-7CE5-4608-9487-64E9077150FA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{DB88713F-1950-4F1A-AE15-290B544126A7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wator.MPI", "src\Wator.MPI\Wator.MPI.csproj", "{7DBFC132-4F72-49C9-815D-81F472899393}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wator.MPI.Tests", "test\Wator.MPI.Tests\Wator.MPI.Tests.csproj", "{1414952E-DB81-4C78-957F-672092F853FB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7DBFC132-4F72-49C9-815D-81F472899393}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7DBFC132-4F72-49C9-815D-81F472899393}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DBFC132-4F72-49C9-815D-81F472899393}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7DBFC132-4F72-49C9-815D-81F472899393}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1414952E-DB81-4C78-957F-672092F853FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1414952E-DB81-4C78-957F-672092F853FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1414952E-DB81-4C78-957F-672092F853FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1414952E-DB81-4C78-957F-672092F853FB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7DBFC132-4F72-49C9-815D-81F472899393} = {B722BF73-7CE5-4608-9487-64E9077150FA}
+		{1414952E-DB81-4C78-957F-672092F853FB} = {DB88713F-1950-4F1A-AE15-290B544126A7}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {17CFAE18-E650-49AA-90C6-139D32505EB0}
+	EndGlobalSection
+EndGlobal
