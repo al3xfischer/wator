@@ -10,12 +10,16 @@ namespace Wator.MPI.Communication
     {
         public static int GetNextProcessRank(int currentRank, int worldSize)
         {
-            return (currentRank % (worldSize - 1)) + 1;
+            var intermediateResult = (currentRank + 1) % worldSize;
+            var result = intermediateResult == 0 ? 1 : intermediateResult;
+            return result;
         }
 
         public static int GetPreviousProcessRank(int currentRank, int worldSize)
         {
-            return (currentRank + 1) % (worldSize - 1) + 1;
+            var intermediateResult = (currentRank - 1 + worldSize) % worldSize;
+            var result = intermediateResult == 0 ? worldSize - 1 : intermediateResult;
+            return result;
         }
     }
 }
