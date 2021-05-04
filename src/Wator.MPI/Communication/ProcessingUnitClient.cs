@@ -7,35 +7,35 @@ namespace Wator.MPI.Communication
     public class ProcessingUnitClient
     {
         private readonly Intracommunicator _communicator = Communicator.world;
-        private readonly int _nextProcessRank;
-        private readonly int _previousProcessRank;
+        private readonly int _lowerProcessRank;
+        private readonly int _upperProcessRank;
 
         public ProcessingUnitClient()
         {
-            _nextProcessRank = TargetRankHelper.GetNextProcessRank(_communicator.Rank, _communicator.Size);
-            _previousProcessRank = TargetRankHelper.GetPreviousProcessRank(_communicator.Rank, _communicator.Size);
+            _lowerProcessRank = TargetRankHelper.GetLowerProcessRank(_communicator.Rank, _communicator.Size);
+            _upperProcessRank = TargetRankHelper.GetUpperProcessRank(_communicator.Rank, _communicator.Size);
         }
 
-        public void SendToNextProcess<T>(T message, int tag)
+        public void SendToLowerProcess<T>(T message, int tag)
         {
-            Console.WriteLine($"Send message {message} to {_nextProcessRank}");
-            _communicator.Send(message, _nextProcessRank, tag);
+            Console.WriteLine($"Send message {message} to {_lowerProcessRank}");
+            _communicator.Send(message, _lowerProcessRank, tag);
         }
 
-        public void SendToPreviousProcess<T>(T message, int tag)
+        public void SendToUpperProcess<T>(T message, int tag)
         {
-            _communicator.Send(message, _previousProcessRank, tag);
+            _communicator.Send(message, _upperProcessRank, tag);
         }
 
-        public (T Message, CompletedStatus Status) ReceiveFromPreviousProcess<T>(int tag)
+        public (T Message, CompletedStatus Status) ReceiveFromUpperProcess<T>(int tag)
         {
-            _communicator.Receive<T>(_previousProcessRank, tag, out var received, out var status);
+            _communicator.Receive<T>(_upperProcessRank, tag, out var received, out var status);
             return (received, status);
         }
 
-        public (T Message, CompletedStatus Status) ReceiveFromNextProcess<T>(int tag)
+        public (T Message, CompletedStatus Status) ReceiveFromLowerProcess<T>(int tag)
         {
-            _communicator.Receive<T>(_nextProcessRank, tag, out var received, out var status);
+            _communicator.Receive<T>(_lowerProcessRank, tag, out var received, out var status);
             return (received, status);
         }
     }

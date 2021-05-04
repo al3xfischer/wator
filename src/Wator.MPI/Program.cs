@@ -37,16 +37,16 @@ namespace wator.mpi
                     // Receive updated bottom border from bottom processor
                     // Copy updated to local
 
-                    var (message, _) = client.ReceiveFromPreviousProcess<string>(0);
-                    client.SendToNextProcess($"Hi from {comm.Rank}", 0);
+                    var (message, _) = client.ReceiveFromUpperProcess<string>(0);
+                    client.SendToLowerProcess($"Hi from {comm.Rank}", 0);
                     Console.WriteLine(message);
 
                     // Send to master
                 }
                 else
                 {
-                    client.SendToNextProcess($"Hi from {comm.Rank}", 0);
-                    var (message, _) = client.ReceiveFromPreviousProcess<string>(0);
+                    client.SendToLowerProcess($"Hi from {comm.Rank}", 0);
+                    var (message, _) = client.ReceiveFromUpperProcess<string>(0);
                     Console.WriteLine(message);
                 }
             }
