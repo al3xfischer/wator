@@ -23,31 +23,23 @@ namespace wator.mpi
                     // ...
                     // Receive and combine sub fields from processors.
                 }
-                else if (comm.Rank == 1)
+                else
                 {
                     // receive from master
 
                     // Calculate non border fields
 
-                    // Send top border to top processor
-                    // Receive updated top border from top processor
-                    // Copy updated to local
+                    var myLowerBorder = $"lower border of {comm.Rank}";
 
-                    // Send bottom border to bottom processor
-                    // Receive updated bottom border from bottom processor
-                    // Copy updated to local
+                    var (lowerBorderFromUpperProcess, _) = client.SendLowerReceiveUpper(myLowerBorder, 0,0);
+                    Console.WriteLine(lowerBorderFromUpperProcess);
 
-                    var (message, _) = client.ReceiveFromUpperProcess<string>(0);
-                    client.SendToLowerProcess($"Hi from {comm.Rank}", 0);
-                    Console.WriteLine(message);
+                    var updatedLowerBorderFromUpperProcess = $"updated {lowerBorderFromUpperProcess}";
+                    var (myUpdatedLowerBorder, _) = client.SendUpperReceiveLower(updatedLowerBorderFromUpperProcess, 0, 0);
+                    Console.WriteLine(myUpdatedLowerBorder);
+                    // Update my current field with received myUpdatedLowerBorder.
 
                     // Send to master
-                }
-                else
-                {
-                    client.SendToLowerProcess($"Hi from {comm.Rank}", 0);
-                    var (message, _) = client.ReceiveFromUpperProcess<string>(0);
-                    Console.WriteLine(message);
                 }
             }
         }

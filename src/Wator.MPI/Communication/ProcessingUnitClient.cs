@@ -33,6 +33,30 @@ namespace Wator.MPI.Communication
             return (received, status);
         }
 
+        public (T Message, CompletedStatus Status) SendLowerReceiveUpper<T>(T message, int sendTag, int receiveTag)
+        {
+            _communicator.SendReceive(message,
+                _lowerProcessRank,
+                sendTag,
+                _upperProcessRank,
+                receiveTag,
+                out var received,
+                out var status);
+            return (received, status);
+        }
+
+        public (T Message, CompletedStatus Status) SendUpperReceiveLower<T>(T message, int sendTag, int receiveTag)
+        {
+            _communicator.SendReceive(message,
+                _upperProcessRank,
+                sendTag,
+                _lowerProcessRank,
+                receiveTag,
+                out var received,
+                out var status);
+            return (received, status);
+        }
+
         public (T Message, CompletedStatus Status) ReceiveFromLowerProcess<T>(int tag)
         {
             _communicator.Receive<T>(_lowerProcessRank, tag, out var received, out var status);
