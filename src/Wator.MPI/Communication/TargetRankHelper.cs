@@ -10,7 +10,6 @@ namespace Wator.MPI.Communication
     {
         public static int GetNextProcessRank(int currentRank, int worldSize)
         {
-
             return (currentRank % (worldSize - 1)) + 1;
         }
 

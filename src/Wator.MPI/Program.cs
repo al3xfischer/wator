@@ -2,6 +2,7 @@
 using System.Net.Mail;
 using MPI;
 using Wator.MPI;
+using Wator.MPI.Communication;
 using Environment = MPI.Environment;
 
 namespace wator.mpi
@@ -13,6 +14,7 @@ namespace wator.mpi
             using (new Environment(ref args))
             {
                 var comm = Communicator.world;
+                var client = new ProcessingUnitClient();
 
                 if (comm.Rank == 0)
                 {
@@ -35,25 +37,18 @@ namespace wator.mpi
                     // Receive updated bottom border from bottom processor
                     // Copy updated to local
 
-                    comm.Send($"Hi from {comm.Rank}", 3, 0);
-                    var received = comm.Receive<string>(Communicator.anySource, 0);
-                    Console.WriteLine(received);
+                    var (message, _) = client.ReceiveFromPreviousProcess<string>(0);
+                    client.SendToNextProcess($"Hi from {comm.Rank}", 0);
+                    Console.WriteLine(message);
 
                     // Send to master
                 }
-                else if (comm.Rank == 2)
+                else
                 {
-                    comm.Send($"Hi from {comm.Rank}", 1, 0);
-                    var received = comm.Receive<string>(Communicator.anySource, 0);
-                    Console.WriteLine(received);
+                    client.SendToNextProcess($"Hi from {comm.Rank}", 0);
+                    var (message, _) = client.ReceiveFromPreviousProcess<string>(0);
+                    Console.WriteLine(message);
                 }
-                else if (comm.Rank == 3)
-                {
-                    var received = comm.Receive<string>(Communicator.anySource, 0);
-                    comm.Send($"Hi from {comm.Rank}", 2, 0);
-                    Console.WriteLine(received);
-                }
-
             }
         }
     }
