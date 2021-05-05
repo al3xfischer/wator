@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Wator.MPI.Communication;
 using Xunit;
-using Wator.MPI.Communication;
 
 namespace Wator.MPI.Tests
 {
     public class TargetRankHelperTests
     {
         [Theory]
-        [InlineData(1, 4, 3)]
+        [InlineData(0, 4, 3)]
+        [InlineData(1, 4, 0)]
         [InlineData(2, 4, 1)]
         [InlineData(3, 4, 2)]
         public void Can_Calculate_Upper_Rank_From_Current_Rank(int currentRank, int worldSize, int expectedTargetRank)
@@ -19,9 +17,10 @@ namespace Wator.MPI.Tests
         }
 
         [Theory]
+        [InlineData(0, 4, 1)]
         [InlineData(1, 4, 2)]
         [InlineData(2, 4, 3)]
-        [InlineData(3, 4, 1)]
+        [InlineData(3, 4, 0)]
         public void Can_Calculate_Lower_Rank_From_Current_Rank(int currentRank, int worldSize, int expectedTargetRank)
         {
             var actual = TargetRankHelper.GetLowerProcessRank(currentRank, worldSize);

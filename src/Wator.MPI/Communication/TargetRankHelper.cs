@@ -6,15 +6,13 @@
 
         public static int GetLowerProcessRank(int currentRank, int worldSize)
         {
-            var intermediateResult = (currentRank + 1) % worldSize;
-            var result = intermediateResult == 0 ? 1 : intermediateResult;
+            var result = (currentRank + 1) % worldSize;
             return result;
         }
 
         public static int GetUpperProcessRank(int currentRank, int worldSize)
         {
-            var intermediateResult = (currentRank - 1 + worldSize) % worldSize;
-            var result = intermediateResult == 0 ? worldSize - 1 : intermediateResult;
+            var result = (currentRank - 1 + worldSize) % worldSize;
             return result;
         }
     }
