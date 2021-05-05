@@ -9,16 +9,17 @@ namespace Wator.MPI.Communication
         private readonly Intracommunicator _communicator = Communicator.world;
         private readonly int _lowerProcessRank;
         private readonly int _upperProcessRank;
+        private readonly int _masterProcessRank;
 
         public ProcessingUnitClient()
         {
             _lowerProcessRank = TargetRankHelper.GetLowerProcessRank(_communicator.Rank, _communicator.Size);
             _upperProcessRank = TargetRankHelper.GetUpperProcessRank(_communicator.Rank, _communicator.Size);
+            _masterProcessRank = 0;
         }
 
         public void SendToLowerProcess<T>(T message, int tag)
         {
-            Console.WriteLine($"Send message {message} to {_lowerProcessRank}");
             _communicator.Send(message, _lowerProcessRank, tag);
         }
 
@@ -27,9 +28,21 @@ namespace Wator.MPI.Communication
             _communicator.Send(message, _upperProcessRank, tag);
         }
 
+        public (T Message, CompletedStatus Status) ReceiveFromMasterProcess<T>(int tag)
+        {
+            _communicator.Receive<T>(_masterProcessRank, tag, out var received, out var status);
+            return (received, status);
+        }
+
         public (T Message, CompletedStatus Status) ReceiveFromUpperProcess<T>(int tag)
         {
             _communicator.Receive<T>(_upperProcessRank, tag, out var received, out var status);
+            return (received, status);
+        }
+
+        public (T Message, CompletedStatus Status) ReceiveFromLowerProcess<T>(int tag)
+        {
+            _communicator.Receive<T>(_lowerProcessRank, tag, out var received, out var status);
             return (received, status);
         }
 
@@ -54,12 +67,6 @@ namespace Wator.MPI.Communication
                 receiveTag,
                 out var received,
                 out var status);
-            return (received, status);
-        }
-
-        public (T Message, CompletedStatus Status) ReceiveFromLowerProcess<T>(int tag)
-        {
-            _communicator.Receive<T>(_lowerProcessRank, tag, out var received, out var status);
             return (received, status);
         }
     }
