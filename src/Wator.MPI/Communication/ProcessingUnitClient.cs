@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices.ComTypes;
-using MPI;
+﻿using MPI;
 
 namespace Wator.MPI.Communication
 {
@@ -15,7 +13,7 @@ namespace Wator.MPI.Communication
         {
             _lowerProcessRank = TargetRankHelper.GetLowerProcessRank(_communicator.Rank, _communicator.Size);
             _upperProcessRank = TargetRankHelper.GetUpperProcessRank(_communicator.Rank, _communicator.Size);
-            _masterProcessRank = 0;
+            _masterProcessRank = TargetRankHelper.GetMasterProcessRank();
         }
 
         public void SendToLowerProcess<T>(T message, int tag)

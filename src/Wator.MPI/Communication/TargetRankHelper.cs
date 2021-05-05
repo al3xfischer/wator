@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Wator.MPI.Communication
+﻿namespace Wator.MPI.Communication
 {
     public class TargetRankHelper
     {
+        public static int GetMasterProcessRank() => 0;
+
         public static int GetLowerProcessRank(int currentRank, int worldSize)
         {
             var intermediateResult = (currentRank + 1) % worldSize;
