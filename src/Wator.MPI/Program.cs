@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net.Mail;
 using System.Runtime.CompilerServices;
 using MPI;
@@ -15,6 +16,32 @@ namespace wator.mpi
             using (new Environment(ref args))
             {
                 var comm = Communicator.world;
+
+                int[] pseudoField = null;
+                
+                // Master splits field to equal sub fields.
+                if(IsMaster()) pseudoField = Enumerable.Range(0, comm.Size).ToArray(); 
+
+                // Distribute sub field to each process.
+                var myPseudoSubfield = comm.Scatter(pseudoField, 0);
+
+                // Each process updates the subfield (master also acts as a worker).
+                var myUpdatedPseudoSubfield = 2 * myPseudoSubfield;
+
+                // Each process sends its updated subfield to the master.
+                // Only the master process has an initialized results array all other processes receive null.
+                var results = comm.Gather(myUpdatedPseudoSubfield, 0);
+
+                // Master handles gathered updated subfields.
+                if (IsMaster())
+                {
+                    foreach (var result in results)
+                    {
+                        Console.WriteLine(result);
+                    }
+                }
+
+                return;
 
                 if (IsMaster())
                 {
