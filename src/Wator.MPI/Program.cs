@@ -25,6 +25,19 @@ namespace wator.mpi
                 // Distribute sub field to each process.
                 var myPseudoSubfield = comm.Scatter(pseudoField, 0);
 
+                var client = new ProcessingUnitClient();
+
+                // Calculate non border fields
+
+                var myLowerBorder = $"lower border of {comm.Rank}";
+
+                var (lowerBorderFromUpperProcess, _) = client.SendLowerReceiveUpper(myLowerBorder, 0, 0);
+                Console.WriteLine(lowerBorderFromUpperProcess);
+
+                var updatedLowerBorderFromUpperProcess = $"updated {lowerBorderFromUpperProcess}";
+                var (myUpdatedLowerBorder, _) = client.SendUpperReceiveLower(updatedLowerBorderFromUpperProcess, 0, 0);
+                Console.WriteLine(myUpdatedLowerBorder);
+
                 // Each process updates the subfield (master also acts as a worker).
                 var myUpdatedPseudoSubfield = 2 * myPseudoSubfield;
 
@@ -39,36 +52,6 @@ namespace wator.mpi
                     {
                         Console.WriteLine(result);
                     }
-                }
-
-                return;
-
-                if (IsMaster())
-                {
-                    // Render
-                    // Send sub fields to processors.
-                    // ...
-                    // Receive and combine sub fields from processors.
-                }
-                else
-                {
-                    var client = new ProcessingUnitClient();
-
-                    // receive from master
-
-                    // Calculate non border fields
-
-                    var myLowerBorder = $"lower border of {comm.Rank}";
-
-                    var (lowerBorderFromUpperProcess, _) = client.SendLowerReceiveUpper(myLowerBorder, 0,0);
-                    Console.WriteLine(lowerBorderFromUpperProcess);
-
-                    var updatedLowerBorderFromUpperProcess = $"updated {lowerBorderFromUpperProcess}";
-                    var (myUpdatedLowerBorder, _) = client.SendUpperReceiveLower(updatedLowerBorderFromUpperProcess, 0, 0);
-                    Console.WriteLine(myUpdatedLowerBorder);
-                    // Update my current field with received myUpdatedLowerBorder.
-
-                    // Send to master
                 }
             }
         }
