@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Mail;
+using System.Runtime.CompilerServices;
 using MPI;
 using Wator.MPI;
 using Wator.MPI.Communication;
@@ -14,9 +15,8 @@ namespace wator.mpi
             using (new Environment(ref args))
             {
                 var comm = Communicator.world;
-                var client = new ProcessingUnitClient();
 
-                if (comm.Rank == 0)
+                if (IsMaster())
                 {
                     // Render
                     // Send sub fields to processors.
@@ -25,6 +25,8 @@ namespace wator.mpi
                 }
                 else
                 {
+                    var client = new ProcessingUnitClient();
+
                     // receive from master
 
                     // Calculate non border fields
@@ -42,6 +44,11 @@ namespace wator.mpi
                     // Send to master
                 }
             }
+        }
+
+        private static bool IsMaster()
+        {
+            return Communicator.world.Rank == 0;
         }
     }
 }
