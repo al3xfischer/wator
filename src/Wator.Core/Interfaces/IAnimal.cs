@@ -1,4 +1,4 @@
-﻿namespace Wator.Core.Entities
+﻿namespace Wator.Core.Interfaces
 {
     public interface IAnimal
     {

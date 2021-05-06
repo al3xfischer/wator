@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Wator.Core.Interfaces;
 
 namespace Wator.Core.Entities
 {
-    public class Cell
+    public record Cell
     {
         public IAnimal Animal { get; set; }
     }

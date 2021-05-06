@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Wator.Core.Entities
 {
-    public class Field
+    public record Field
     {
-        private readonly int _width;
-        private readonly int _height;
-
-        public Field(int width, int height)
+        public Field(int width, int height, Cell[] cells)
         {
             if (width < 1)
             {
@@ -21,19 +16,23 @@ namespace Wator.Core.Entities
                 throw new ArgumentOutOfRangeException("The height must be at least one.");
             }
 
-            _width = width;
-            _height = height;
+            Width = width;
+            Height = height;
 
-            Cells = Enumerable.Range(0, _width * _height).Select(_ => new Cell()).ToArray();
+            Cells = cells ?? throw new ArgumentNullException(nameof(cells));
         }
-        public Cell[] Cells { get; set; }
 
-        public ICollection<Cell> GetRow(int index)
+        public Cell[] Cells { get; init; }
+
+        public int Width { get; init; }
+
+        public int Height { get; init; }
+
+        public ReadOnlyMemory<Cell> GetRows(int start, int count)
         {
-            var start = index * _width;
-            var end = start + _width;
+            var length = count * Width;
+            return Cells.AsMemory().Slice(start, length);
 
-            return Cells[start..end];
         }
     }
 }

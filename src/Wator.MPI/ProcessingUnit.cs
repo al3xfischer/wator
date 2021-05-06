@@ -5,7 +5,7 @@ using MPI;
 
 namespace Wator.MPI
 {
-    public class ProcessingUnit
+    public class ProcessingUnit : IProcessingUnit
     {
         private readonly Intracommunicator _comm;
 
