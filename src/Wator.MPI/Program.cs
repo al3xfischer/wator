@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Linq;
-using System.Net.Mail;
-using System.Runtime.CompilerServices;
 using MPI;
-using Wator.MPI;
 using Wator.MPI.Communication;
 using Environment = MPI.Environment;
 
@@ -20,22 +17,20 @@ namespace wator.mpi
                 int[] pseudoField = null;
                 
                 // Master splits field to equal sub fields.
-                if(IsMaster()) pseudoField = Enumerable.Range(0, comm.Size).ToArray(); 
+                if(IsMaster()) pseudoField = Enumerable.Range(0, comm.Size).ToArray();
 
                 // Distribute sub field to each process.
                 var myPseudoSubfield = comm.Scatter(pseudoField, 0);
-
-                var client = new ProcessingUnitClient();
 
                 // Calculate non border fields
 
                 var myLowerBorder = $"lower border of {comm.Rank}";
 
-                var (lowerBorderFromUpperProcess, _) = client.SendLowerReceiveUpper(myLowerBorder, 0, 0);
+                var (lowerBorderFromUpperProcess, _) = comm.SendLowerReceiveUpper(myLowerBorder, 0, 0);
                 Console.WriteLine(lowerBorderFromUpperProcess);
 
                 var updatedLowerBorderFromUpperProcess = $"updated {lowerBorderFromUpperProcess}";
-                var (myUpdatedLowerBorder, _) = client.SendUpperReceiveLower(updatedLowerBorderFromUpperProcess, 0, 0);
+                var (myUpdatedLowerBorder, _) = comm.SendUpperReceiveLower(updatedLowerBorderFromUpperProcess, 0, 0);
                 Console.WriteLine(myUpdatedLowerBorder);
 
                 // Each process updates the subfield (master also acts as a worker).
