@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Net.Mail;
+using System.Linq;
 using MPI;
-using Wator.MPI;
 using Wator.MPI.Communication;
 using Environment = MPI.Environment;
 
@@ -14,34 +13,47 @@ namespace wator.mpi
             using (new Environment(ref args))
             {
                 var comm = Communicator.world;
-                var client = new ProcessingUnitClient();
 
-                if (comm.Rank == 0)
+                int[] pseudoField = null;
+                
+                // Master splits field to equal sub fields.
+                if(IsMaster()) pseudoField = Enumerable.Range(0, comm.Size).ToArray();
+
+                // Distribute sub field to each process.
+                var myPseudoSubfield = comm.Scatter(pseudoField, 0);
+
+                // Calculate non border fields
+
+                var myLowerBorder = $"lower border of {comm.Rank}";
+
+                var (lowerBorderFromUpperProcess, _) = comm.SendLowerReceiveUpper(myLowerBorder, 0, 0);
+                Console.WriteLine(lowerBorderFromUpperProcess);
+
+                var updatedLowerBorderFromUpperProcess = $"updated {lowerBorderFromUpperProcess}";
+                var (myUpdatedLowerBorder, _) = comm.SendUpperReceiveLower(updatedLowerBorderFromUpperProcess, 0, 0);
+                Console.WriteLine(myUpdatedLowerBorder);
+
+                // Each process updates the subfield (master also acts as a worker).
+                var myUpdatedPseudoSubfield = 2 * myPseudoSubfield;
+
+                // Each process sends its updated subfield to the master.
+                // Only the master process has an initialized results array all other processes receive null.
+                var results = comm.Gather(myUpdatedPseudoSubfield, 0);
+
+                // Master handles gathered updated subfields.
+                if (IsMaster())
                 {
-                    // Render
-                    // Send sub fields to processors.
-                    // ...
-                    // Receive and combine sub fields from processors.
-                }
-                else
-                {
-                    // receive from master
-
-                    // Calculate non border fields
-
-                    var myLowerBorder = $"lower border of {comm.Rank}";
-
-                    var (lowerBorderFromUpperProcess, _) = client.SendLowerReceiveUpper(myLowerBorder, 0,0);
-                    Console.WriteLine(lowerBorderFromUpperProcess);
-
-                    var updatedLowerBorderFromUpperProcess = $"updated {lowerBorderFromUpperProcess}";
-                    var (myUpdatedLowerBorder, _) = client.SendUpperReceiveLower(updatedLowerBorderFromUpperProcess, 0, 0);
-                    Console.WriteLine(myUpdatedLowerBorder);
-                    // Update my current field with received myUpdatedLowerBorder.
-
-                    // Send to master
+                    foreach (var result in results)
+                    {
+                        Console.WriteLine(result);
+                    }
                 }
             }
+        }
+
+        private static bool IsMaster()
+        {
+            return Communicator.world.Rank == 0;
         }
     }
 }
