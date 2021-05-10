@@ -3,7 +3,7 @@
 
 using Wator.Core.Services;
 
-var service = new FieldService();
+var service = new FieldHelper();
 
 
 //var parts = service.Split(10, field);

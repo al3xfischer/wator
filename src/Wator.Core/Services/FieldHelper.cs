@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Wator.Core.Services
 {
-    public class FieldService
+    public class FieldHelper
     {
         public T[,] GetRows<T>(T[,] source, int from, int to)
         {
