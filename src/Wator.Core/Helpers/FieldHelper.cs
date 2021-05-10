@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace Wator.Core.Services
+namespace Wator.Core.Helpers
 {
     public class FieldHelper
     {

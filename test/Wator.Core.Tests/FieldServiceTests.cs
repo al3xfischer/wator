@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Wator.Core.Entities;
-using Wator.Core.Services;
+using Wator.Core.Helpers;
 using Xunit;
 
 namespace Wator.Core.Tests

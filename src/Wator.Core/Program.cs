@@ -1,7 +1,7 @@
 ﻿
 //var field = new Field(10, 10, Enumerable.Range(0, 100).Select(_ => new Cell()).ToArray());
 
-using Wator.Core.Services;
+using Wator.Core.Helpers;
 
 var service = new FieldHelper();
 
