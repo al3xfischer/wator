@@ -11,8 +11,8 @@ namespace Wator.Core.Tests
         [Fact]
         public void Two_Subfield_Can_Be_Merged()
         {
-            var subOne = new[,] {{1, 2, 3}};
-            var subTwo = new[,] {{4, 5, 6}};
+            var subOne = new[,] { { 1, 2, 3 } };
+            var subTwo = new[,] { { 4, 5, 6 } };
 
             var service = new FieldHelper();
             var actual = service.MergeTwo(subOne, subTwo);
@@ -25,11 +25,11 @@ namespace Wator.Core.Tests
         [Fact]
         public void Multiple_Subfields_Can_Be_Merged()
         {
-            var subOne = new[,] {{1, 2, 3}};
-            var subTwo = new[,] {{4, 5, 6}};
-            var subThree = new[,] {{7, 8, 9}};
+            var subOne = new[,] { { 1, 2, 3 } };
+            var subTwo = new[,] { { 4, 5, 6 } };
+            var subThree = new[,] { { 7, 8, 9 } };
 
-            var subFields = new[] {subOne, subTwo, subThree};
+            var subFields = new[] { subOne, subTwo, subThree };
 
             var service = new FieldHelper();
             var actual = service.Merge(subFields);
@@ -111,7 +111,7 @@ namespace Wator.Core.Tests
             };
 
             var actual = FieldService.GetSurroundingFields((1, 1), completeField);
-            var expected = new List<(int, int)> {(0, 1), (1, 2), (2, 1), (1, 0)};
+            var expected = new List<(int, int)> { (0, 1), (1, 2), (2, 1), (1, 0) };
 
             Assert.Equal(expected, actual);
         }
@@ -127,7 +127,7 @@ namespace Wator.Core.Tests
             };
 
             var actual = FieldService.GetSurroundingFields((0, 0), completeField);
-            var expected = new List<(int, int)> {(2, 0), (0, 1), (1, 0), (0, 2)};
+            var expected = new List<(int, int)> { (2, 0), (0, 1), (1, 0), (0, 2) };
 
             Assert.Equal(expected, actual);
         }
