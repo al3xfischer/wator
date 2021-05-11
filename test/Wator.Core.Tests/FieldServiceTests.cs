@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Wator.Core.Entities;
 using Wator.Core.Helpers;
 using Wator.Core.Services;
 using Xunit;
@@ -146,6 +147,35 @@ namespace Wator.Core.Tests
             var expected = new List<(int, int)> { (1, 2), (2, 0), (0, 2), (2, 1) };
 
             Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void Shark_Eats_Nearby_Fish()
+        {
+            var shark = new Animal { Type = AnimalType.Shark, Age = 5, Energy = 3 };
+            var fish = new Animal { Type = AnimalType.Fish, Age = 2, Energy = 2 };
+            var field = new Animal[,] {
+                {null, null,shark},
+                {null, null,null },
+                {null, null,fish }
+            };
+
+            var actualChanges = FieldService.RunCycleInRows(0, 2, field);
+
+            var expectedChanges = new List<(int, int)> {
+                (2,2)
+            };
+
+            var expectedField = new Animal[,] {
+                {null, null,null},
+                {null, null,null },
+                {null, null,shark }
+            };
+
+            Assert.Equal(expectedField, field);
+            Assert.Equal(expectedChanges, actualChanges);
+            Assert.Equal(6, shark.Age);
+            Assert.Equal(4, shark.Energy);
         }
     }
 }

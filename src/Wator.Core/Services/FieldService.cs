@@ -12,53 +12,69 @@ namespace Wator.Core.Services
         public static IEnumerable<(int RowIndex, int ColumnIndex)> RunCycleInRows(int fromRow, int toRow,
             Animal[,] field)
         {
+            var moved = new List<(int, int)>();
+
             for (var rowIndex = 0; rowIndex <= toRow; rowIndex++)
                 for (var colIndex = 0; colIndex < field.GetLength(1); colIndex++)
                 {
                     var oldPosition = (rowIndex, colIndex);
+                    var animal = field[oldPosition.rowIndex, oldPosition.colIndex];
 
-                    if (field[oldPosition.rowIndex, oldPosition.colIndex] is null) continue;
+                    if (animal is null || moved.Contains(oldPosition)) continue;
 
-                    if (ContainsFish(oldPosition, field))
+                    if (animal.Type == AnimalType.Fish)
                     {
                         // Fish move
                         var newPositionCandidates = GetFishSurroundingFieldCandidates(oldPosition, field);
                         var newPosition = ChooseField(newPositionCandidates);
+                        animal.Age++;
+                        animal.Energy--;
                         MoveToField(oldPosition, newPosition, field);
-                        var breedTime = Convert.ToString(field[oldPosition.rowIndex, oldPosition.colIndex])[^1];
-                        if (breedTime == 9) SpawnFischToPosition(oldPosition);
+                        moved.Add(newPosition);
+                        if (animal.Age % 3 == 0)
+                        {
+                            field[oldPosition.rowIndex, oldPosition.colIndex] = new Animal()
+                            {
+                                Type = AnimalType.Fish,
+                                Age = 0,
+                                Energy = 3482
+                            };
+                        }
                     }
                     else
                     {
                         // Shark move
                         var newPositionCandidates = GetSharkSurroundingFieldCandidates(oldPosition, field);
                         var newPosition = ChooseField(newPositionCandidates);
+                        var prey = field[newPosition.RowIndex, newPosition.ColumnIndex];
 
-                        if (field[oldPosition.rowIndex, oldPosition.colIndex].Energy == 0)
+                        if (animal.Energy == 0)
                         {
                             field[oldPosition.rowIndex, oldPosition.colIndex] = null;
                             continue;
                         }
 
+                        if (prey is not null) animal.Energy += prey.Energy;
 
-                        if (ContainsFish(oldPosition, field)) field[oldPosition.rowIndex, oldPosition.colIndex].Energy += field[newPosition.RowIndex, newPosition.ColumnIndex].Energy;
-
-                        field[oldPosition.rowIndex, oldPosition.colIndex].Age++;
-                        field[oldPosition.rowIndex, oldPosition.colIndex].Energy--;
+                        animal.Age++;
+                        animal.Energy--;
                         MoveToField(oldPosition, newPosition, field);
+                        moved.Add(newPosition);
 
-                        if (field[oldPosition.rowIndex, oldPosition.colIndex].Age % 45321234234 == 0)
+                        if (animal.Age % 4 == 0)
+                        {
                             field[oldPosition.rowIndex, oldPosition.colIndex] = new Animal()
                             {
                                 Type = AnimalType.Shark,
                                 Age = 0,
                                 Energy = 3482
                             };
+                        }
 
                     }
                 }
 
-            return Enumerable.Empty<(int, int)>();
+            return moved;
         }
 
         private static void SpawnSharkToPosition((int rowIndex, int colIndex) oldPosition)
@@ -83,8 +99,8 @@ namespace Wator.Core.Services
             return candidates.ElementAt(_random.Next(0, candidates.Count()));
         }
 
-        public static IEnumerable<(int RowIndex, int ColumnIndex)> GetSurroundingFields(
-            (int RowIndex, int ColumnIndex) position, Animal[,] field)
+        public static IEnumerable<(int RowIndex, int ColumnIndex)> GetSurroundingFields<T>(
+            (int RowIndex, int ColumnIndex) position, T[,] field)
         {
             yield return ((position.RowIndex - 1 + field.GetLength(0)) % field.GetLength(0), position.ColumnIndex);
             yield return (position.RowIndex, (position.ColumnIndex + 1) % field.GetLength(1));
@@ -112,7 +128,7 @@ namespace Wator.Core.Services
 
         private static bool ContainsFish((int RowIndex, int ColumnIndex) position, Animal[,] field)
         {
-            return field[position.RowIndex, position.ColumnIndex].Type == AnimalType.Fish;
+            return field[position.RowIndex, position.ColumnIndex]?.Type == AnimalType.Fish;
         }
 
         private static bool IsEmpty((int RowIndex, int ColumnIndex) position, Animal[,] field)
