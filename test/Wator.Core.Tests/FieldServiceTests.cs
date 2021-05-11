@@ -177,5 +177,45 @@ namespace Wator.Core.Tests
             Assert.Equal(6, shark.Age);
             Assert.Equal(4, shark.Energy);
         }
+
+        [Fact]
+        public void Shark_Hits_Zero_Energy_And_Dies()
+        {
+            var shark = new Animal { Type = AnimalType.Shark, Age = 5, Energy = 0 };
+            var field = new Animal[,] {
+                {null, null,shark},
+                {null, null,null },
+                {null, null,null }
+            };
+
+            var actualChanges = FieldService.RunCycleInRows(0, 2, field);
+
+            var expectedChanges = Enumerable.Empty<(int, int)>();
+
+            var expectedField = new Animal[,] {
+                {null, null,null},
+                {null, null,null },
+                {null, null,null }
+            };
+
+            Assert.Equal(expectedField, field);
+            Assert.Equal(expectedChanges, actualChanges);
+        }
+
+        [Fact]
+        public void Fish_Moves_One_Step()
+        {
+            var fish = new Animal { Type = AnimalType.Fish, Age = 2, Energy = 2 };
+            var field = new Animal[,] {
+                {null, null,null},
+                {null, null,null },
+                {null, null,fish }
+            };
+
+            var actualChanges = FieldService.RunCycleInRows(0, 2, field);
+
+            Assert.DoesNotContain((2, 2), actualChanges);
+        }
+
     }
 }
