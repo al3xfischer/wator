@@ -12,8 +12,8 @@ namespace Wator.Core.Tests
         [Fact]
         public void Two_Subfield_Can_Be_Merged()
         {
-            var subOne = new[,] { { 1, 2, 3 } };
-            var subTwo = new[,] { { 4, 5, 6 } };
+            var subOne = new[,] {{1, 2, 3}};
+            var subTwo = new[,] {{4, 5, 6}};
 
             var service = new FieldHelper();
             var actual = service.MergeTwo(subOne, subTwo);
@@ -26,11 +26,11 @@ namespace Wator.Core.Tests
         [Fact]
         public void Multiple_Subfields_Can_Be_Merged()
         {
-            var subOne = new[,] { { 1, 2, 3 } };
-            var subTwo = new[,] { { 4, 5, 6 } };
-            var subThree = new[,] { { 7, 8, 9 } };
+            var subOne = new[,] {{1, 2, 3}};
+            var subTwo = new[,] {{4, 5, 6}};
+            var subThree = new[,] {{7, 8, 9}};
 
-            var subFields = new[] { subOne, subTwo, subThree };
+            var subFields = new[] {subOne, subTwo, subThree};
 
             var service = new FieldHelper();
             var actual = service.Merge(subFields);
@@ -111,8 +111,8 @@ namespace Wator.Core.Tests
                 {6, 7, 8}
             };
 
-            var actual = FieldService.GetSurroundingFields((1, 1), completeField);
-            var expected = new List<(int, int)> { (0, 1), (1, 2), (2, 1), (1, 0) };
+            var actual = FieldService.GetSurroundingFields(new Position(1, 1), completeField);
+            var expected = new List<Position> {new(0, 1), new(1, 2), new(2, 1), new(1, 0)};
 
             Assert.Equal(expected, actual);
         }
@@ -127,8 +127,8 @@ namespace Wator.Core.Tests
                 {6, 7, 8}
             };
 
-            var actual = FieldService.GetSurroundingFields((0, 0), completeField);
-            var expected = new List<(int, int)> { (2, 0), (0, 1), (1, 0), (0, 2) };
+            var actual = FieldService.GetSurroundingFields(new Position(0, 0), completeField);
+            var expected = new List<Position> {new(2, 0), new(0, 1), new(1, 0), new(0, 2)};
 
             Assert.Equal(expected, actual);
         }
@@ -143,8 +143,8 @@ namespace Wator.Core.Tests
                 {6, 7, 8}
             };
 
-            var actual = FieldService.GetSurroundingFields((2, 2), completeField);
-            var expected = new List<(int, int)> { (1, 2), (2, 0), (0, 2), (2, 1) };
+            var actual = FieldService.GetSurroundingFields(new Position(2, 2), completeField);
+            var expected = new List<Position> {new(1, 2), new(2, 0), new(0, 2), new(2, 1)};
 
             Assert.Equal(expected, actual);
         }
@@ -152,24 +152,27 @@ namespace Wator.Core.Tests
         [Fact]
         public void Shark_Eats_Nearby_Fish()
         {
-            var shark = new Animal { Type = AnimalType.Shark, Age = 5, Energy = 3 };
-            var fish = new Animal { Type = AnimalType.Fish, Age = 2, Energy = 2 };
-            var field = new Animal[,] {
-                {null, null,shark},
-                {null, null,null },
-                {null, null,fish }
+            var shark = new Animal {Type = AnimalType.Shark, Age = 5, Energy = 3};
+            var fish = new Animal {Type = AnimalType.Fish, Age = 2, Energy = 2};
+            var field = new[,]
+            {
+                {null, null, shark},
+                {null, null, null},
+                {null, null, fish}
             };
 
             var actualChanges = FieldService.RunCycleInRows(0, 2, field);
 
-            var expectedChanges = new List<(int, int)> {
-                (2,2)
+            var expectedChanges = new List<Position>
+            {
+                new(2, 2)
             };
 
-            var expectedField = new Animal[,] {
-                {null, null,null},
-                {null, null,null },
-                {null, null,shark }
+            var expectedField = new[,]
+            {
+                {null, null, null},
+                {null, null, null},
+                {null, null, shark}
             };
 
             Assert.Equal(expectedField, field);
@@ -181,21 +184,23 @@ namespace Wator.Core.Tests
         [Fact]
         public void Shark_Hits_Zero_Energy_And_Dies()
         {
-            var shark = new Animal { Type = AnimalType.Shark, Age = 5, Energy = 0 };
-            var field = new Animal[,] {
-                {null, null,shark},
-                {null, null,null },
-                {null, null,null }
+            var shark = new Animal {Type = AnimalType.Shark, Age = 5, Energy = 0};
+            var field = new[,]
+            {
+                {null, null, shark},
+                {null, null, null},
+                {null, null, null}
             };
 
             var actualChanges = FieldService.RunCycleInRows(0, 2, field);
 
-            var expectedChanges = Enumerable.Empty<(int, int)>();
+            var expectedChanges = Enumerable.Empty<Position>();
 
-            var expectedField = new Animal[,] {
-                {null, null,null},
-                {null, null,null },
-                {null, null,null }
+            var expectedField = new Animal[,]
+            {
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
             };
 
             Assert.Equal(expectedField, field);
@@ -205,17 +210,17 @@ namespace Wator.Core.Tests
         [Fact]
         public void Fish_Moves_One_Step()
         {
-            var fish = new Animal { Type = AnimalType.Fish, Age = 2, Energy = 2 };
-            var field = new Animal[,] {
-                {null, null,null},
-                {null, null,null },
-                {null, null,fish }
+            var fish = new Animal {Type = AnimalType.Fish, Age = 2, Energy = 2};
+            var field = new[,]
+            {
+                {null, null, null},
+                {null, null, null},
+                {null, null, fish}
             };
 
             var actualChanges = FieldService.RunCycleInRows(0, 2, field);
 
-            Assert.DoesNotContain((2, 2), actualChanges);
+            Assert.DoesNotContain(new Position(2, 2), actualChanges);
         }
-
     }
 }

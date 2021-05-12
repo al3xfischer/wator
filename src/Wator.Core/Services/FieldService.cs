@@ -9,16 +9,16 @@ namespace Wator.Core.Services
     {
         private static readonly Random _random = new();
 
-        public static IEnumerable<(int RowIndex, int ColumnIndex)> RunCycleInRows(int fromRow, int toRow,
+        public static IEnumerable<Position> RunCycleInRows(int fromRow, int toRow,
             Animal[,] field)
         {
-            var moved = new List<(int, int)>();
+            var moved = new List<Position>();
 
             for (var rowIndex = 0; rowIndex <= toRow; rowIndex++)
                 for (var colIndex = 0; colIndex < field.GetLength(1); colIndex++)
                 {
-                    var oldPosition = (rowIndex, colIndex);
-                    var animal = field[oldPosition.rowIndex, oldPosition.colIndex];
+                    var oldPosition = new Position(rowIndex, colIndex);
+                    var animal = field[oldPosition.RowIndex, oldPosition.ColumnIndex];
 
                     if (animal is null || moved.Contains(oldPosition)) continue;
 
@@ -33,7 +33,7 @@ namespace Wator.Core.Services
                         moved.Add(newPosition);
                         if (animal.Age % 3 == 0)
                         {
-                            field[oldPosition.rowIndex, oldPosition.colIndex] = new Animal()
+                            field[oldPosition.RowIndex, oldPosition.ColumnIndex] = new Animal()
                             {
                                 Type = AnimalType.Fish,
                                 Age = 0,
@@ -50,7 +50,7 @@ namespace Wator.Core.Services
 
                         if (animal.Energy == 0)
                         {
-                            field[oldPosition.rowIndex, oldPosition.colIndex] = null;
+                            field[oldPosition.RowIndex, oldPosition.ColumnIndex] = null;
                             continue;
                         }
 
@@ -63,14 +63,13 @@ namespace Wator.Core.Services
 
                         if (animal.Age % 4 == 0)
                         {
-                            field[oldPosition.rowIndex, oldPosition.colIndex] = new Animal()
+                            field[oldPosition.RowIndex, oldPosition.ColumnIndex] = new Animal()
                             {
                                 Type = AnimalType.Shark,
                                 Age = 0,
                                 Energy = 3482
                             };
                         }
-
                     }
                 }
 
@@ -87,29 +86,29 @@ namespace Wator.Core.Services
             throw new NotImplementedException();
         }
 
-        public static void MoveToField((int RowIndex, int ColumnIndex) oldPosition,
-            (int RowIndex, int ColumnIndex) newPosition, Animal[,] field)
+        public static void MoveToField(Position oldPosition,
+            Position newPosition, Animal[,] field)
         {
             field[newPosition.RowIndex, newPosition.ColumnIndex] = field[oldPosition.RowIndex, oldPosition.ColumnIndex];
             field[oldPosition.RowIndex, oldPosition.ColumnIndex] = null;
         }
 
-        public static (int RowIndex, int ColumnIndex) ChooseField(IEnumerable<(int, int)> candidates)
+        public static Position ChooseField(IEnumerable<Position> candidates)
         {
             return candidates.ElementAt(_random.Next(0, candidates.Count()));
         }
 
-        public static IEnumerable<(int RowIndex, int ColumnIndex)> GetSurroundingFields<T>(
-            (int RowIndex, int ColumnIndex) position, T[,] field)
+        public static IEnumerable<Position> GetSurroundingFields<T>(
+            Position position, T[,] field)
         {
-            yield return ((position.RowIndex - 1 + field.GetLength(0)) % field.GetLength(0), position.ColumnIndex);
-            yield return (position.RowIndex, (position.ColumnIndex + 1) % field.GetLength(1));
-            yield return ((position.RowIndex + 1) % field.GetLength(0), position.ColumnIndex);
-            yield return (position.RowIndex, (position.ColumnIndex - 1 + field.GetLength(1)) % field.GetLength(1));
+            yield return new Position((position.RowIndex - 1 + field.GetLength(0)) % field.GetLength(0), position.ColumnIndex);
+            yield return new Position(position.RowIndex, (position.ColumnIndex + 1) % field.GetLength(1));
+            yield return new Position((position.RowIndex + 1) % field.GetLength(0), position.ColumnIndex);
+            yield return new Position(position.RowIndex, (position.ColumnIndex - 1 + field.GetLength(1)) % field.GetLength(1));
         }
 
-        public static IEnumerable<(int RowIndex, int ColumnIndex)> GetSharkSurroundingFieldCandidates(
-            (int RowIndex, int ColumnIndex) position, Animal[,] field)
+        public static IEnumerable<Position> GetSharkSurroundingFieldCandidates(
+            Position position, Animal[,] field)
         {
             var surroundingFields = GetSurroundingFields(position, field).ToArray();
 
@@ -119,21 +118,26 @@ namespace Wator.Core.Services
             return surroundingFields.Where(pos => IsEmpty(pos, field));
         }
 
-        public static IEnumerable<(int RowIndex, int ColumnIndex)> GetFishSurroundingFieldCandidates(
-            (int RowIndex, int ColumnIndex) position, Animal[,] field)
+        public static IEnumerable<Position> GetFishSurroundingFieldCandidates(
+            Position position, Animal[,] field)
         {
             var surroundingFields = GetSurroundingFields(position, field).ToArray();
             return surroundingFields.Where(pos => IsEmpty(pos, field));
         }
 
-        private static bool ContainsFish((int RowIndex, int ColumnIndex) position, Animal[,] field)
+        private static bool ContainsFish(Position position, Animal[,] field)
         {
             return field[position.RowIndex, position.ColumnIndex]?.Type == AnimalType.Fish;
         }
 
-        private static bool IsEmpty((int RowIndex, int ColumnIndex) position, Animal[,] field)
+        private static bool IsEmpty(Position position, Animal[,] field)
         {
             return field[position.RowIndex, position.ColumnIndex] is null;
+        }
+
+        private static Animal GetAnimalAtPosition(Animal[,] field, Position position)
+        {
+            return field[position.RowIndex, position.ColumnIndex];
         }
     }
 }
