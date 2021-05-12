@@ -14,7 +14,7 @@ namespace Wator.Core.Services
         {
             var moved = new List<Position>();
 
-            for (var rowIndex = 0; rowIndex <= toRow; rowIndex++)
+            for (var rowIndex = fromRow; rowIndex <= toRow; rowIndex++)
             for (var colIndex = 0; colIndex < field.GetLength(1); colIndex++)
             {
                 var oldPosition = new Position(rowIndex, colIndex);
