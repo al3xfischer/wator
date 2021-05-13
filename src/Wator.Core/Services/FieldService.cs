@@ -64,16 +64,6 @@ namespace Wator.Core.Services
             return moved;
         }
 
-        private static void SpawnSharkToPosition((int rowIndex, int colIndex) oldPosition)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static void SpawnFischToPosition((int rowIndex, int colIndex) oldPosition)
-        {
-            throw new NotImplementedException();
-        }
-
         public static void MoveToField(Animal[,] field, Position oldPosition, Position newPosition)
         {
             SetAnimalAtPosition(field, newPosition, GetAnimalAtPosition(field, oldPosition));
