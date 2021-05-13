@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Wator.Core.Entities;
 using Wator.Core.Helpers;
@@ -9,6 +10,38 @@ namespace Wator.Core.Tests
 {
     public class FieldServiceTests
     {
+        [Fact]
+        public void TestSim()
+        {
+            var field = new Animal[10, 10];
+            var initFishCount = 10;
+            var initSharkCount = 10;
+            var cycleCount = 10;
+
+            var random = new Random(5);
+
+            for (var i = 0; i < initFishCount; i++)
+            {
+                var rowIndex = random.Next(0, field.GetLength(0));
+                var colIndex = random.Next(0, field.GetLength(1));
+
+                field[rowIndex, colIndex] = new Animal {Age = 0, Energy = 10, Type = AnimalType.Fish};
+            }
+
+            for (var i = 0; i < initSharkCount; i++)
+            {
+                var rowIndex = random.Next(0, field.GetLength(0));
+                var colIndex = random.Next(0, field.GetLength(1));
+
+                field[rowIndex, colIndex] = new Animal { Age = 0, Energy = 20, Type = AnimalType.Shark };
+            }
+
+            for (var i = 0; i < cycleCount; i++)
+            {
+                FieldService.RunCycleInRows(0, 9, field);
+            }
+        }
+
         [Fact]
         public void Two_Subfield_Can_Be_Merged()
         {
