@@ -25,26 +25,26 @@ namespace Wator.Core.Services
                 if (animal.Type == AnimalType.Fish)
                 {
                     // Fish move
-                    var newPositionCandidates = GetFishSurroundingFieldCandidates(oldPosition, field);
+                    var newPositionCandidates = GetFishSurroundingFieldCandidates(field, oldPosition);
                     var newPosition = ChooseField(newPositionCandidates);
                     animal.Age++;
                     animal.Energy--;
-                    MoveToField(oldPosition, newPosition, field);
+                    MoveToField(field, oldPosition, newPosition);
                     moved.Add(newPosition);
                     if (animal.Age % 3 == 0)
-                        SetAnimalAtPosition(new Animal {Type = AnimalType.Fish, Age = 0, Energy = 3482}, field,
-                            oldPosition);
+                        SetAnimalAtPosition(field,
+                            oldPosition, new Animal {Type = AnimalType.Fish, Age = 0, Energy = 3482});
                 }
                 else
                 {
                     // Shark move
-                    var newPositionCandidates = GetSharkSurroundingFieldCandidates(oldPosition, field);
+                    var newPositionCandidates = GetSharkSurroundingFieldCandidates(field, oldPosition);
                     var newPosition = ChooseField(newPositionCandidates);
                     var prey = GetAnimalAtPosition(field, newPosition);
 
                     if (animal.Energy == 0)
                     {
-                        SetAnimalAtPosition(null, field, oldPosition);
+                        SetAnimalAtPosition(field, oldPosition, null);
                         continue;
                     }
 
@@ -52,12 +52,12 @@ namespace Wator.Core.Services
 
                     animal.Age++;
                     animal.Energy--;
-                    MoveToField(oldPosition, newPosition, field);
+                    MoveToField(field, oldPosition, newPosition);
                     moved.Add(newPosition);
 
                     if (animal.Age % 4 == 0)
-                        SetAnimalAtPosition(new Animal {Type = AnimalType.Shark, Age = 0, Energy = 3482}, field,
-                            oldPosition);
+                        SetAnimalAtPosition(field,
+                            oldPosition, new Animal {Type = AnimalType.Shark, Age = 0, Energy = 3482});
                 }
             }
 
@@ -74,10 +74,10 @@ namespace Wator.Core.Services
             throw new NotImplementedException();
         }
 
-        public static void MoveToField(Position oldPosition, Position newPosition, Animal[,] field)
+        public static void MoveToField(Animal[,] field, Position oldPosition, Position newPosition)
         {
-            SetAnimalAtPosition(GetAnimalAtPosition(field, oldPosition), field, newPosition);
-            SetAnimalAtPosition(null, field, oldPosition);
+            SetAnimalAtPosition(field, newPosition, GetAnimalAtPosition(field, oldPosition));
+            SetAnimalAtPosition(field, oldPosition, null);
         }
 
         public static Position ChooseField(IEnumerable<Position> candidates)
@@ -85,8 +85,7 @@ namespace Wator.Core.Services
             return candidates.ElementAt(_random.Next(0, candidates.Count()));
         }
 
-        public static IEnumerable<Position> GetSurroundingFields<T>(
-            Position position, T[,] field)
+        public static IEnumerable<Position> GetSurroundingFields<T>(T[,] field, Position position)
         {
             yield return new Position((position.RowIndex - 1 + field.GetLength(0)) % field.GetLength(0),
                 position.ColumnIndex);
@@ -96,30 +95,28 @@ namespace Wator.Core.Services
                 (position.ColumnIndex - 1 + field.GetLength(1)) % field.GetLength(1));
         }
 
-        public static IEnumerable<Position> GetSharkSurroundingFieldCandidates(
-            Position position, Animal[,] field)
+        public static IEnumerable<Position> GetSharkSurroundingFieldCandidates(Animal[,] field, Position position)
         {
-            var surroundingFields = GetSurroundingFields(position, field).ToArray();
+            var surroundingFields = GetSurroundingFields(field, position).ToArray();
 
-            if (surroundingFields.Any(pos => ContainsFish(pos, field)))
-                return surroundingFields.Where(pos => ContainsFish(pos, field));
+            if (surroundingFields.Any(pos => ContainsFish(field, pos)))
+                return surroundingFields.Where(pos => ContainsFish(field, pos));
 
-            return surroundingFields.Where(pos => IsEmpty(pos, field));
+            return surroundingFields.Where(pos => IsEmpty(field, pos));
         }
 
-        public static IEnumerable<Position> GetFishSurroundingFieldCandidates(
-            Position position, Animal[,] field)
+        public static IEnumerable<Position> GetFishSurroundingFieldCandidates(Animal[,] field, Position position)
         {
-            var surroundingFields = GetSurroundingFields(position, field).ToArray();
-            return surroundingFields.Where(pos => IsEmpty(pos, field));
+            var surroundingFields = GetSurroundingFields(field, position).ToArray();
+            return surroundingFields.Where(pos => IsEmpty(field, pos));
         }
 
-        private static bool ContainsFish(Position position, Animal[,] field)
+        private static bool ContainsFish(Animal[,] field, Position position)
         {
             return GetAnimalAtPosition(field, position)?.Type == AnimalType.Fish;
         }
 
-        private static bool IsEmpty(Position position, Animal[,] field)
+        private static bool IsEmpty(Animal[,] field, Position position)
         {
             return GetAnimalAtPosition(field, position) is null;
         }
@@ -129,7 +126,7 @@ namespace Wator.Core.Services
             return field[position.RowIndex, position.ColumnIndex];
         }
 
-        private static void SetAnimalAtPosition(Animal animal, Animal[,] field, Position position)
+        private static void SetAnimalAtPosition(Animal[,] field, Position position, Animal animal)
         {
             field[position.RowIndex, position.ColumnIndex] = animal;
         }

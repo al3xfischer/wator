@@ -111,7 +111,7 @@ namespace Wator.Core.Tests
                 {6, 7, 8}
             };
 
-            var actual = FieldService.GetSurroundingFields(new Position(1, 1), completeField);
+            var actual = FieldService.GetSurroundingFields(completeField, new Position(1, 1));
             var expected = new List<Position> {new(0, 1), new(1, 2), new(2, 1), new(1, 0)};
 
             Assert.Equal(expected, actual);
@@ -127,7 +127,7 @@ namespace Wator.Core.Tests
                 {6, 7, 8}
             };
 
-            var actual = FieldService.GetSurroundingFields(new Position(0, 0), completeField);
+            var actual = FieldService.GetSurroundingFields(completeField, new Position(0, 0));
             var expected = new List<Position> {new(2, 0), new(0, 1), new(1, 0), new(0, 2)};
 
             Assert.Equal(expected, actual);
@@ -143,7 +143,7 @@ namespace Wator.Core.Tests
                 {6, 7, 8}
             };
 
-            var actual = FieldService.GetSurroundingFields(new Position(2, 2), completeField);
+            var actual = FieldService.GetSurroundingFields(completeField, new Position(2, 2));
             var expected = new List<Position> {new(1, 2), new(2, 0), new(0, 2), new(2, 1)};
 
             Assert.Equal(expected, actual);
