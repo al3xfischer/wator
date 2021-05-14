@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Wator.Core.Entities;
 using Wator.Core.Helpers;
 
@@ -8,10 +9,10 @@ namespace Wator.Core.Services
 {
     public class WatorSimulation
     {
-        private const int FishBreedTime = 1;
-        private const int SharkBreedTime = 20;
-        private const int SharkInitialEnergy = 5;
-        private const int FishInitialEnergy = 1;
+        public const int FishBreedTime = 1;
+        public const int SharkBreedTime = 20;
+        public const int SharkInitialEnergy = 5;
+        public const int FishInitialEnergy = 1;
 
         private readonly Random _random = new();
 
@@ -21,6 +22,9 @@ namespace Wator.Core.Services
         }
 
         public Animal[,] Field { get; }
+
+        public int FishCount => Field.Cast<Animal>().Count(a => a?.Type == AnimalType.Fish);
+        public int SharkCount => Field.Cast<Animal>().Count(a => a?.Type == AnimalType.Shark);
 
         public IEnumerable<Position> RunCycleInRows(int fromRow, int toRow)
         {

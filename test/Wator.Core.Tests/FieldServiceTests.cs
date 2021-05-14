@@ -16,7 +16,7 @@ namespace Wator.Core.Tests
             var simulation = new WatorSimulation(new Animal[100, 100]);
             var initFishCount = 300;
             var initSharkCount = 300;
-            var cycleCount = 1000;
+            var cycleCount = 10;
 
             var random = new Random(5);
 
@@ -234,6 +234,27 @@ namespace Wator.Core.Tests
         }
 
         [Fact]
+        public void Shark_Breeds_When_Reaching_BreedTime()
+        {
+            var fish = new Animal { Type = AnimalType.Shark, Age = 0, Energy = WatorSimulation.SharkBreedTime + 10 };
+            var field = new[,]
+            {
+                {null, null, null},
+                {null, null, null},
+                {null, null, fish}
+            };
+
+            var simulation = new WatorSimulation(field);
+
+            for (var i = 0; i < WatorSimulation.SharkBreedTime; i++)
+            {
+                simulation.RunCycleInRows(0, field.GetLength(0) - 1);
+            }
+
+            Assert.Equal(2, simulation.SharkCount);
+        }
+
+        [Fact]
         public void Fish_Moves_One_Step()
         {
             var fish = new Animal {Type = AnimalType.Fish, Age = 2, Energy = 2};
@@ -248,6 +269,27 @@ namespace Wator.Core.Tests
             var actualChanges = simulation.RunCycleInRows(0, 2);
 
             Assert.DoesNotContain(new Position(2, 2), actualChanges);
+        }
+
+        [Fact]
+        public void Fish_Breeds_When_Reaching_BreedTime()
+        {
+            var fish = new Animal { Type = AnimalType.Fish, Age = 0, Energy = 5 };
+            var field = new[,]
+            {
+                {null, null, null},
+                {null, null, null},
+                {null, null, fish}
+            };
+
+            var simulation = new WatorSimulation(field);
+
+            for (var i = 0; i < WatorSimulation.FishBreedTime; i++)
+            {
+                simulation.RunCycleInRows(0, field.GetLength(0) - 1);
+            }
+
+            Assert.Equal(2, simulation.FishCount);
         }
     }
 }
