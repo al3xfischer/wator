@@ -8,10 +8,10 @@ namespace Wator.Core.Services
 {
     public class WatorSimulation
     {
-        private const int FishBreedTime = 3;
-        private const int SharkBreedTime = 3;
-        private const int SharkInitialEnergy = 20;
-        private const int FishInitialEnergy = 10;
+        private const int FishBreedTime = 1;
+        private const int SharkBreedTime = 20;
+        private const int SharkInitialEnergy = 5;
+        private const int FishInitialEnergy = 1;
 
         private readonly Random _random = new();
 
@@ -61,6 +61,7 @@ namespace Wator.Core.Services
             if (!ContainsShark(position))
                 throw new InvalidOperationException("Cannot perform action for non-shark cells.");
 
+            Position newPosition = null;
             var shark = GetAnimalAtPosition(position);
             if (shark.Energy == 0)
             {
@@ -68,16 +69,16 @@ namespace Wator.Core.Services
                 return position;
             }
 
-            if (CanEatPreyOrMoveToEmptyField(position))
-            {
-                position = EatPreyOrMoveToEmptyField(position);
-                if (shark.Age % SharkBreedTime == 0) BreedSharkToPosition(position);
-            }
-
             shark.Age++;
             shark.Energy--;
 
-            return position;
+            if (CanEatPreyOrMoveToEmptyField(position))
+            {
+                newPosition = EatPreyOrMoveToEmptyField(position);
+                if (shark.Age % SharkBreedTime == 0) BreedSharkToPosition(position);
+            }
+
+            return newPosition ?? position;
         }
 
         private Position PerformFishChronon(Position position)
@@ -85,17 +86,17 @@ namespace Wator.Core.Services
             if (!ContainsFish(position))
                 throw new InvalidOperationException("Cannot perform action for non-fish cells.");
 
+            Position newPosition = null;
             var fish = GetAnimalAtPosition(position);
+            fish.Age++;
 
             if (CanMoveToEmptyField(position))
             {
-                position = MoveToEmptyField(position);
+                newPosition = MoveToEmptyField(position);
                 if (fish.Age % FishBreedTime == 0) BreedFishToPosition(position);
             }
 
-            fish.Age++;
-
-            return position;
+            return newPosition ?? position;
         }
 
         private IEnumerable<Position> GetEmptySurroundingFields(Position position)

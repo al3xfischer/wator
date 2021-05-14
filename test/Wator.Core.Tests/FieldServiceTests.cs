@@ -25,7 +25,7 @@ namespace Wator.Core.Tests
                 var rowIndex = random.Next(0, simulation.Field.GetLength(0));
                 var colIndex = random.Next(0, simulation.Field.GetLength(1));
 
-                simulation.Field[rowIndex, colIndex] = new Animal {Age = 0, Energy = 10, Type = AnimalType.Fish};
+                simulation.Field[rowIndex, colIndex] = new Animal {Age = 0, Energy = 1, Type = AnimalType.Fish};
             }
 
             for (var i = 0; i < initSharkCount; i++)
@@ -33,7 +33,7 @@ namespace Wator.Core.Tests
                 var rowIndex = random.Next(0, simulation.Field.GetLength(0));
                 var colIndex = random.Next(0, simulation.Field.GetLength(1));
 
-                simulation.Field[rowIndex, colIndex] = new Animal {Age = 0, Energy = 20, Type = AnimalType.Shark};
+                simulation.Field[rowIndex, colIndex] = new Animal {Age = 0, Energy = 5, Type = AnimalType.Shark};
             }
 
             for (var i = 0; i < cycleCount; i++) simulation.RunCycleInRows(0, simulation.Field.GetLength(0) - 1);
