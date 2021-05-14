@@ -28,8 +28,8 @@ Console.SetWindowSize(simulation.Field.GetLength(1) + 1, simulation.Field.GetLen
 
 while (true)
 {
-    simulation.RunCycle();
     RenderField(simulation.Field);
+    simulation.RunCycle();
 }
 
 static void RenderField(Animal[,] field)
