@@ -9,22 +9,24 @@ namespace Wator.Core.Services
 {
     public class WatorSimulation
     {
-        public const int FishBreedTime = 1;
-        public const int SharkBreedTime = 20;
-        public const int SharkInitialEnergy = 5;
-        public const int FishInitialEnergy = 1;
-
         private readonly Random _random = new();
 
-        public WatorSimulation(Animal[,] field)
+        public WatorSimulation(Animal[,] field, WatorConfiguration configuration = null)
         {
             Field = field ?? throw new ArgumentNullException(nameof(field));
+            Configuration = configuration ?? new WatorConfiguration();
         }
 
         public Animal[,] Field { get; }
+        public WatorConfiguration Configuration { get; }
 
         public int FishCount => Field.Cast<Animal>().Count(a => a?.Type == AnimalType.Fish);
         public int SharkCount => Field.Cast<Animal>().Count(a => a?.Type == AnimalType.Shark);
+
+        public IEnumerable<Position> RunCycle()
+        {
+            return RunCycleInRows(0, Field.GetLength(0) - 1);
+        }
 
         public IEnumerable<Position> RunCycleInRows(int fromRow, int toRow)
         {
@@ -45,7 +47,7 @@ namespace Wator.Core.Services
             return moved;
         }
 
-        public Position ChooseField(IEnumerable<Position> candidates)
+        private Position ChooseField(IEnumerable<Position> candidates)
         {
             return candidates.ElementAt(_random.Next(0, candidates.Count()));
         }
@@ -79,7 +81,7 @@ namespace Wator.Core.Services
             if (CanEatPreyOrMoveToEmptyField(position))
             {
                 newPosition = EatPreyOrMoveToEmptyField(position);
-                if (shark.Age % SharkBreedTime == 0) BreedSharkToPosition(position);
+                if (shark.Age % Configuration.SharkBreedTime == 0) BreedSharkToPosition(position);
             }
 
             return newPosition ?? position;
@@ -97,7 +99,7 @@ namespace Wator.Core.Services
             if (CanMoveToEmptyField(position))
             {
                 newPosition = MoveToEmptyField(position);
-                if (fish.Age % FishBreedTime == 0) BreedFishToPosition(position);
+                if (fish.Age % Configuration.FishBreedTime == 0) BreedFishToPosition(position);
             }
 
             return newPosition ?? position;
@@ -163,13 +165,13 @@ namespace Wator.Core.Services
 
         private void BreedSharkToPosition(Position position)
         {
-            var babyShark = new Animal {Type = AnimalType.Shark, Age = 0, Energy = SharkInitialEnergy};
+            var babyShark = new Animal {Type = AnimalType.Shark, Age = 0, Energy = Configuration.SharkInitialEnergy};
             SetAnimalAtPosition(position, babyShark);
         }
 
         private void BreedFishToPosition(Position position)
         {
-            var babyFish = new Animal {Type = AnimalType.Fish, Age = 0, Energy = FishInitialEnergy};
+            var babyFish = new Animal {Type = AnimalType.Fish, Age = 0, Energy = Configuration.FishInitialEnergy};
             SetAnimalAtPosition(position, babyFish);
         }
 

@@ -27,7 +27,7 @@ for (var i = 0; i < initSharkCount; i++)
 
 for (var i = 0; i < cycleCount; i++)
 {
-    simulation.RunCycleInRows(0, simulation.Field.GetLength(0) - 1);
+    simulation.RunCycle();
     RenderField(simulation.Field);
     Console.ReadKey(false);
 }

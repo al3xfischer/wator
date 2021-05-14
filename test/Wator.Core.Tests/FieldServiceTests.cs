@@ -36,7 +36,7 @@ namespace Wator.Core.Tests
                 simulation.Field[rowIndex, colIndex] = new Animal {Age = 0, Energy = 5, Type = AnimalType.Shark};
             }
 
-            for (var i = 0; i < cycleCount; i++) simulation.RunCycleInRows(0, simulation.Field.GetLength(0) - 1);
+            for (var i = 0; i < cycleCount; i++) simulation.RunCycle();
         }
 
         [Fact]
@@ -186,7 +186,7 @@ namespace Wator.Core.Tests
             };
             var simulation = new WatorSimulation(field);
 
-            var actualChanges = simulation.RunCycleInRows(0, 2);
+            var actualChanges = simulation.RunCycle();
 
             var expectedChanges = new List<Position>
             {
@@ -209,34 +209,27 @@ namespace Wator.Core.Tests
         [Fact]
         public void Shark_Hits_Zero_Energy_And_Dies()
         {
-            var shark = new Animal {Type = AnimalType.Shark, Age = 5, Energy = 0};
+            var shark = new Animal {Type = AnimalType.Shark, Age = 5, Energy = 1};
+            var configuration = new WatorConfiguration {SharkBreedTime = 10};
             var field = new[,]
             {
                 {null, null, shark},
                 {null, null, null},
                 {null, null, null}
             };
-            var simulation = new WatorSimulation(field);
+            var simulation = new WatorSimulation(field, configuration);
 
-            var actualChanges = simulation.RunCycleInRows(0, 2);
+            simulation.RunCycle();
+            simulation.RunCycle();
 
-            var expectedChanges = new List<Position> {new(0, 2)};
-
-            var expectedField = new Animal[,]
-            {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
-            };
-
-            Assert.Equal(expectedField, field);
-            Assert.Equal(expectedChanges, actualChanges);
+            Assert.Equal(0, simulation.SharkCount);
         }
 
         [Fact]
         public void Shark_Breeds_When_Reaching_BreedTime()
         {
-            var fish = new Animal { Type = AnimalType.Shark, Age = 0, Energy = WatorSimulation.SharkBreedTime + 10 };
+            var fish = new Animal { Type = AnimalType.Shark, Age = 0, Energy = 50 };
+            var configuration = new WatorConfiguration { SharkBreedTime = 2 };
             var field = new[,]
             {
                 {null, null, null},
@@ -244,12 +237,10 @@ namespace Wator.Core.Tests
                 {null, null, fish}
             };
 
-            var simulation = new WatorSimulation(field);
+            var simulation = new WatorSimulation(field, configuration);
 
-            for (var i = 0; i < WatorSimulation.SharkBreedTime; i++)
-            {
-                simulation.RunCycleInRows(0, field.GetLength(0) - 1);
-            }
+            simulation.RunCycle();
+            simulation.RunCycle();
 
             Assert.Equal(2, simulation.SharkCount);
         }
@@ -266,7 +257,7 @@ namespace Wator.Core.Tests
             };
             var simulation = new WatorSimulation(field);
 
-            var actualChanges = simulation.RunCycleInRows(0, 2);
+            var actualChanges = simulation.RunCycle();
 
             Assert.DoesNotContain(new Position(2, 2), actualChanges);
         }
@@ -275,6 +266,7 @@ namespace Wator.Core.Tests
         public void Fish_Breeds_When_Reaching_BreedTime()
         {
             var fish = new Animal { Type = AnimalType.Fish, Age = 0, Energy = 5 };
+            var configuration = new WatorConfiguration {FishBreedTime = 2};
             var field = new[,]
             {
                 {null, null, null},
@@ -282,12 +274,10 @@ namespace Wator.Core.Tests
                 {null, null, fish}
             };
 
-            var simulation = new WatorSimulation(field);
-
-            for (var i = 0; i < WatorSimulation.FishBreedTime; i++)
-            {
-                simulation.RunCycleInRows(0, field.GetLength(0) - 1);
-            }
+            var simulation = new WatorSimulation(field, configuration);
+            
+            simulation.RunCycle();
+            simulation.RunCycle();
 
             Assert.Equal(2, simulation.FishCount);
         }
