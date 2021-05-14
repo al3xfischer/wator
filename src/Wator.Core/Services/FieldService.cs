@@ -22,39 +22,18 @@ namespace Wator.Core.Services
             {
                 var currentPosition = new Position(rowIndex, colIndex);
 
-                if (currentPosition is null)
-                {
-                    var x = "asdfasf";
-                }
-
                 if (IsEmpty(field, currentPosition) || moved.Contains(currentPosition)) continue;
                 if (ContainsFish(field, currentPosition)) currentPosition = PerformFishChronon(field, currentPosition);
-                if (ContainsShark(field, currentPosition)) currentPosition = PerformSharkChronon(field, currentPosition);
-                if (currentPosition is not null) moved.Add(currentPosition);
+                if (ContainsShark(field, currentPosition))
+                    currentPosition = PerformSharkChronon(field, currentPosition);
+                moved.Add(currentPosition);
             }
 
             return moved;
         }
 
-        public static void MoveToField(Animal[,] field, Position oldPosition, Position newPosition)
-        {
-            SetAnimalAtPosition(field, newPosition, GetAnimalAtPosition(field, oldPosition));
-            SetAnimalAtPosition(field, oldPosition, null);
-        }
-
-        public static IEnumerable<Position> GetSurroundingFields<T>(T[,] field, Position position)
-        {
-            yield return new Position((position.RowIndex - 1 + field.GetLength(0)) % field.GetLength(0),
-                position.ColumnIndex);
-            yield return new Position(position.RowIndex, (position.ColumnIndex + 1) % field.GetLength(1));
-            yield return new Position((position.RowIndex + 1) % field.GetLength(0), position.ColumnIndex);
-            yield return new Position(position.RowIndex,
-                (position.ColumnIndex - 1 + field.GetLength(1)) % field.GetLength(1));
-        }
-
         public static Position ChooseField(IEnumerable<Position> candidates)
         {
-            if (!candidates.Any()) return null;
             return candidates.ElementAt(_random.Next(0, candidates.Count()));
         }
 
@@ -66,16 +45,6 @@ namespace Wator.Core.Services
         private static Position ChoosePreyInSurroundingField(Animal[,] field, Position position)
         {
             return ChooseField(GetPreyInSurroundingFields(field, position));
-        }
-
-        private static IEnumerable<Position> GetEmptySurroundingFields(Animal[,] field, Position position)
-        {
-            return GetSurroundingFields(field, position).Where(pos => IsEmpty(field, pos));
-        }
-
-        private static IEnumerable<Position> GetPreyInSurroundingFields(Animal[,] field, Position position)
-        {
-            return GetSurroundingFields(field, position).Where(pos => ContainsFish(field, pos));
         }
 
         private static Position PerformSharkChronon(Animal[,] field, Position position)
@@ -90,23 +59,16 @@ namespace Wator.Core.Services
                 return position;
             }
 
-            var newPosition = ChoosePreyInSurroundingField(field, position) ??
-                              ChooseEmptySurroundingField(field, position);
-
-            if (newPosition is not null)
+            if (CanEatPreyOrMoveToEmptyField(field, position))
             {
-                var prey = newPosition is null ? null : GetAnimalAtPosition(field, newPosition);
-                if (prey is not null) shark.Energy += prey.Energy;
-
-                MoveToField(field, position, newPosition);
-
+                position = EatPreyOrMoveToEmptyField(field, position);
                 if (shark.Age % SharkBreedTime == 0) BreedSharkToPosition(field, position);
             }
 
             shark.Age++;
             shark.Energy--;
 
-            return newPosition;
+            return position;
         }
 
         private static Position PerformFishChronon(Animal[,] field, Position position)
@@ -115,13 +77,86 @@ namespace Wator.Core.Services
                 throw new InvalidOperationException("Cannot perform action for non-fish cells.");
 
             var fish = GetAnimalAtPosition(field, position);
-            var newPosition = ChooseEmptySurroundingField(field, position);
-            if (newPosition is not null) MoveToField(field, position, newPosition);
 
-            if (fish.Age % FishBreedTime == 0) BreedFishToPosition(field, position);
+            if (CanMoveToEmptyField(field, position))
+            {
+                position = MoveToEmptyField(field, position);
+                if (fish.Age % FishBreedTime == 0) BreedFishToPosition(field, position);
+            }
+
             fish.Age++;
 
+            return position;
+        }
+
+        public static IEnumerable<Position> GetSurroundingFields<T>(T[,] field, Position position)
+        {
+            var top = new Position((position.RowIndex - 1 + field.GetLength(0)) % field.GetLength(0),
+                position.ColumnIndex);
+            var right = new Position(position.RowIndex, (position.ColumnIndex + 1) % field.GetLength(1));
+            var bottom = new Position((position.RowIndex + 1) % field.GetLength(0), position.ColumnIndex);
+            var left = new Position(position.RowIndex,
+                (position.ColumnIndex - 1 + field.GetLength(1)) % field.GetLength(1));
+
+            return new List<Position> { top, right, bottom, left };
+        }
+
+        private static IEnumerable<Position> GetEmptySurroundingFields(Animal[,] field, Position position)
+        {
+            return GetSurroundingFields(field, position).Where(pos => IsEmpty(field, pos));
+        }
+
+        private static IEnumerable<Position> GetPreyInSurroundingFields(Animal[,] field, Position position)
+        {
+            return GetSurroundingFields(field, position).Where(pos => ContainsFish(field, pos));
+        }
+
+        private static Position EatPreyOrMoveToEmptyField(Animal[,] field, Position position)
+        {
+            if (CanEatPrey(field, position)) return EatPrey(field, position);
+            return MoveToEmptyField(field, position);
+        }
+
+        private static void MoveToField(Animal[,] field, Position oldPosition, Position newPosition)
+        {
+            SetAnimalAtPosition(field, newPosition, GetAnimalAtPosition(field, oldPosition));
+            SetAnimalAtPosition(field, oldPosition, null);
+        }
+
+        private static Position EatPrey(Animal[,] field, Position position)
+        {
+            if (!CanEatPrey(field, position)) throw new InvalidOperationException("Cannot eat prey.");
+
+            var shark = GetAnimalAtPosition(field, position);
+            var preyPosition = ChoosePreyInSurroundingField(field, position);
+            shark.Energy += GetAnimalAtPosition(field, preyPosition).Energy;
+            MoveToField(field, position, preyPosition);
+            return preyPosition;
+        }
+
+        private static Position MoveToEmptyField(Animal[,] field, Position position)
+        {
+            if (!CanMoveToEmptyField(field, position))
+                throw new InvalidOperationException("Cannot move to empty field.");
+
+            var newPosition = ChooseEmptySurroundingField(field, position);
+            MoveToField(field, position, newPosition);
             return newPosition;
+        }
+
+        private static bool CanEatPreyOrMoveToEmptyField(Animal[,] field, Position position)
+        {
+            return CanEatPrey(field, position) || CanMoveToEmptyField(field, position);
+        }
+
+        private static bool CanEatPrey(Animal[,] field, Position position)
+        {
+            return GetPreyInSurroundingFields(field, position).Any();
+        }
+
+        private static bool CanMoveToEmptyField(Animal[,] field, Position position)
+        {
+            return GetEmptySurroundingFields(field, position).Any();
         }
 
         private static void BreedSharkToPosition(Animal[,] field, Position position)
