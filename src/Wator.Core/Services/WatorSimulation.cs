@@ -10,7 +10,9 @@ namespace Wator.Core.Services
     {
         private const int FishBreedTime = 3;
         private const int SharkBreedTime = 3;
-        
+        private const int SharkInitialEnergy = 20;
+        private const int FishInitialEnergy = 10;
+
         private readonly Random _random = new();
 
         public WatorSimulation(Animal[,] field)
@@ -156,13 +158,13 @@ namespace Wator.Core.Services
 
         private void BreedSharkToPosition(Position position)
         {
-            var babyShark = new Animal {Type = AnimalType.Shark, Age = 0, Energy = 20};
+            var babyShark = new Animal {Type = AnimalType.Shark, Age = 0, Energy = SharkInitialEnergy};
             SetAnimalAtPosition(position, babyShark);
         }
 
         private void BreedFishToPosition(Position position)
         {
-            var babyFish = new Animal {Type = AnimalType.Fish, Age = 0, Energy = 10};
+            var babyFish = new Animal {Type = AnimalType.Fish, Age = 0, Energy = FishInitialEnergy};
             SetAnimalAtPosition(position, babyFish);
         }
 
