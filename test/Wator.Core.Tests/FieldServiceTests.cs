@@ -45,8 +45,7 @@ namespace Wator.Core.Tests
             var subOne = new[,] {{1, 2, 3}};
             var subTwo = new[,] {{4, 5, 6}};
 
-            var service = new FieldHelper();
-            var actual = service.MergeTwo(subOne, subTwo);
+            var actual = FieldHelper.MergeTwo(subOne, subTwo);
 
             var expected = subOne.Length + subTwo.Length;
 
@@ -62,8 +61,7 @@ namespace Wator.Core.Tests
 
             var subFields = new[] {subOne, subTwo, subThree};
 
-            var service = new FieldHelper();
-            var actual = service.Merge(subFields);
+            var actual = FieldHelper.Merge(subFields);
 
             var expected = subFields.Select(sub => sub.Length)
                 .Aggregate(0, (x, y) => x + y);
@@ -74,8 +72,6 @@ namespace Wator.Core.Tests
         [Fact]
         public void Split_Into_Subfields()
         {
-            var service = new FieldHelper();
-
             var completeField = new[,]
             {
                 {0, 1, 2},
@@ -84,7 +80,7 @@ namespace Wator.Core.Tests
                 {9, 10, 11}
             };
 
-            var actual = service.Split(completeField, 2);
+            var actual = FieldHelper.Split(completeField, 2);
 
             var firstExpectedSubfield = new[,]
             {
@@ -105,8 +101,6 @@ namespace Wator.Core.Tests
         [Fact]
         public void Split_Into_Non_Dividable_Subfields()
         {
-            var service = new FieldHelper();
-
             var completeField = new[,]
             {
                 {0, 1, 2},
@@ -114,7 +108,7 @@ namespace Wator.Core.Tests
                 {6, 7, 8}
             };
 
-            var actual = service.Split(completeField, 2);
+            var actual = FieldHelper.Split(completeField, 2);
 
             var firstExpectedSubfield = new[,]
             {

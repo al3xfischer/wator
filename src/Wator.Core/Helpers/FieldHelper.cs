@@ -19,7 +19,7 @@ namespace Wator.Core.Helpers
             return new List<Position> { top, right, bottom, left };
         }
 
-        public T[,] GetRows<T>(T[,] source, int from, int to)
+        public static T[,] GetRows<T>(T[,] source, int from, int to)
         {
             if (from >= source.GetLength(0))
                 throw new ArgumentOutOfRangeException(nameof(from), "Out of source index.");
@@ -38,7 +38,7 @@ namespace Wator.Core.Helpers
             return rows;
         }
 
-        public T[][,] Split<T>(T[,] source, int partCount)
+        public static T[][,] Split<T>(T[,] source, int partCount)
         {
             var rowCount = source.GetLength(0);
             var segmentHeight = rowCount / partCount;
@@ -58,7 +58,7 @@ namespace Wator.Core.Helpers
         }
 
 
-        public T[,] MergeTwo<T>(T[,] partOne, T[,] partTwo)
+        public static T[,] MergeTwo<T>(T[,] partOne, T[,] partTwo)
         {
             if (partOne.GetLength(1) != partTwo.GetLength(1))
                 throw new InvalidOperationException("Column width must match.");
@@ -71,7 +71,7 @@ namespace Wator.Core.Helpers
             return result;
         }
 
-        public T[,] Merge<T>(T[][,] parts)
+        public static T[,] Merge<T>(T[][,] parts)
         {
             return parts.Aggregate(MergeTwo);
         }
