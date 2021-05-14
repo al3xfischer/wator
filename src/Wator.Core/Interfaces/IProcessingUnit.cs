@@ -1,4 +1,4 @@
-﻿namespace Wator.MPI
+﻿namespace Wator.Core.Interfaces
 {
     public interface IProcessingUnit
     {
