@@ -11,35 +11,32 @@ namespace Wator.Core.Tests
     public class FieldServiceTests
     {
         [Fact]
-        public void TestSim()
+        public void SanityTestSimulation()
         {
-            var field = new Animal[10, 10];
-            var initFishCount = 10;
-            var initSharkCount = 10;
-            var cycleCount = 10;
+            var simulation = new WatorSimulation(new Animal[100, 100]);
+            var initFishCount = 300;
+            var initSharkCount = 300;
+            var cycleCount = 1000;
 
             var random = new Random(5);
 
             for (var i = 0; i < initFishCount; i++)
             {
-                var rowIndex = random.Next(0, field.GetLength(0));
-                var colIndex = random.Next(0, field.GetLength(1));
+                var rowIndex = random.Next(0, simulation.Field.GetLength(0));
+                var colIndex = random.Next(0, simulation.Field.GetLength(1));
 
-                field[rowIndex, colIndex] = new Animal {Age = 0, Energy = 10, Type = AnimalType.Fish};
+                simulation.Field[rowIndex, colIndex] = new Animal {Age = 0, Energy = 10, Type = AnimalType.Fish};
             }
 
             for (var i = 0; i < initSharkCount; i++)
             {
-                var rowIndex = random.Next(0, field.GetLength(0));
-                var colIndex = random.Next(0, field.GetLength(1));
+                var rowIndex = random.Next(0, simulation.Field.GetLength(0));
+                var colIndex = random.Next(0, simulation.Field.GetLength(1));
 
-                field[rowIndex, colIndex] = new Animal { Age = 0, Energy = 20, Type = AnimalType.Shark };
+                simulation.Field[rowIndex, colIndex] = new Animal {Age = 0, Energy = 20, Type = AnimalType.Shark};
             }
 
-            for (var i = 0; i < cycleCount; i++)
-            {
-                FieldService.RunCycleInRows(0, 9, field);
-            }
+            for (var i = 0; i < cycleCount; i++) simulation.RunCycleInRows(0, simulation.Field.GetLength(0) - 1);
         }
 
         [Fact]
@@ -144,7 +141,7 @@ namespace Wator.Core.Tests
                 {6, 7, 8}
             };
 
-            var actual = FieldService.GetSurroundingFields(completeField, new Position(1, 1));
+            var actual = FieldHelper.GetSurroundingFields(completeField, new Position(1, 1));
             var expected = new List<Position> {new(0, 1), new(1, 2), new(2, 1), new(1, 0)};
 
             Assert.Equal(expected, actual);
@@ -160,7 +157,7 @@ namespace Wator.Core.Tests
                 {6, 7, 8}
             };
 
-            var actual = FieldService.GetSurroundingFields(completeField, new Position(0, 0));
+            var actual = FieldHelper.GetSurroundingFields(completeField, new Position(0, 0));
             var expected = new List<Position> {new(2, 0), new(0, 1), new(1, 0), new(0, 2)};
 
             Assert.Equal(expected, actual);
@@ -176,7 +173,7 @@ namespace Wator.Core.Tests
                 {6, 7, 8}
             };
 
-            var actual = FieldService.GetSurroundingFields(completeField, new Position(2, 2));
+            var actual = FieldHelper.GetSurroundingFields(completeField, new Position(2, 2));
             var expected = new List<Position> {new(1, 2), new(2, 0), new(0, 2), new(2, 1)};
 
             Assert.Equal(expected, actual);
@@ -193,8 +190,9 @@ namespace Wator.Core.Tests
                 {null, null, null},
                 {null, null, fish}
             };
+            var simulation = new WatorSimulation(field);
 
-            var actualChanges = FieldService.RunCycleInRows(0, 2, field);
+            var actualChanges = simulation.RunCycleInRows(0, 2);
 
             var expectedChanges = new List<Position>
             {
@@ -224,10 +222,11 @@ namespace Wator.Core.Tests
                 {null, null, null},
                 {null, null, null}
             };
+            var simulation = new WatorSimulation(field);
 
-            var actualChanges = FieldService.RunCycleInRows(0, 2, field);
+            var actualChanges = simulation.RunCycleInRows(0, 2);
 
-            var expectedChanges = Enumerable.Empty<Position>();
+            var expectedChanges = new List<Position> {new(0, 2)};
 
             var expectedField = new Animal[,]
             {
@@ -250,8 +249,9 @@ namespace Wator.Core.Tests
                 {null, null, null},
                 {null, null, fish}
             };
+            var simulation = new WatorSimulation(field);
 
-            var actualChanges = FieldService.RunCycleInRows(0, 2, field);
+            var actualChanges = simulation.RunCycleInRows(0, 2);
 
             Assert.DoesNotContain(new Position(2, 2), actualChanges);
         }

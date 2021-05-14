@@ -1,10 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Wator.Core.Entities;
 
 namespace Wator.Core.Helpers
 {
     public class FieldHelper
     {
+        public static IEnumerable<Position> GetSurroundingFields<T>(T[,] field, Position position)
+        {
+            var top = new Position((position.RowIndex - 1 + field.GetLength(0)) % field.GetLength(0),
+                position.ColumnIndex);
+            var right = new Position(position.RowIndex, (position.ColumnIndex + 1) % field.GetLength(1));
+            var bottom = new Position((position.RowIndex + 1) % field.GetLength(0), position.ColumnIndex);
+            var left = new Position(position.RowIndex,
+                (position.ColumnIndex - 1 + field.GetLength(1)) % field.GetLength(1));
+
+            return new List<Position> { top, right, bottom, left };
+        }
+
         public T[,] GetRows<T>(T[,] source, int from, int to)
         {
             if (from >= source.GetLength(0))
