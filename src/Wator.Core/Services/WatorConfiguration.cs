@@ -2,9 +2,9 @@
 {
     public class WatorConfiguration
     {
-        public int FishBreedTime { get; init; } = 1;
-        public int SharkBreedTime { get; init; } = 20;
-        public int SharkInitialEnergy { get; init; } = 5;
-        public int FishInitialEnergy { get; init; } = 1;
+        public int FishBreedTime { get; init; } = 10;
+        public int SharkBreedTime { get; init; } = 25;
+        public int SharkInitialEnergy { get; init; } = 20;
+        public int FishInitialEnergy { get; init; } = 10;
     }
 }

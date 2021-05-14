@@ -2,10 +2,9 @@
 using Wator.Core.Entities;
 using Wator.Core.Services;
 
-var simulation = new WatorSimulation(new Animal[10, 20]);
-var initFishCount = 15;
-var initSharkCount = 5;
-var cycleCount = 1000;
+var simulation = new WatorSimulation(new Animal[50, 100]);
+var initFishCount = 30;
+var initSharkCount = 15;
 
 var random = new Random(5);
 
@@ -22,14 +21,15 @@ for (var i = 0; i < initSharkCount; i++)
     var rowIndex = random.Next(0, simulation.Field.GetLength(0));
     var colIndex = random.Next(0, simulation.Field.GetLength(1));
 
-    simulation.Field[rowIndex, colIndex] = new Animal { Age = 0, Energy = 3, Type = AnimalType.Shark };
+    simulation.Field[rowIndex, colIndex] = new Animal { Age = 0, Energy = 20, Type = AnimalType.Shark };
 }
 
-for (var i = 0; i < cycleCount; i++)
+Console.SetWindowSize(simulation.Field.GetLength(1) + 1, simulation.Field.GetLength(0) + 1);
+
+while (true)
 {
     simulation.RunCycle();
     RenderField(simulation.Field);
-    Console.ReadKey(false);
 }
 
 static void RenderField(Animal[,] field)
