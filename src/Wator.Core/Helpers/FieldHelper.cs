@@ -38,7 +38,7 @@ namespace Wator.Core.Helpers
             return rows;
         }
 
-        public static (int FromRow, int ToRow)[] GetSplitIndices<T>(T[,] source, int partCount)
+        public static (int FromRow, int ToRow)[] GetSplitBoundaries<T>(T[,] source, int partCount)
         {
             var rowCount = source.GetLength(0);
             var segmentHeight = rowCount / partCount;
@@ -59,7 +59,7 @@ namespace Wator.Core.Helpers
 
         public static T[][,] Split<T>(T[,] source, int partCount)
         {
-            return GetSplitIndices(source, partCount)
+            return GetSplitBoundaries(source, partCount)
                 .Select(indices => GetRows(source, indices.FromRow, indices.ToRow))
                 .ToArray();
         }
