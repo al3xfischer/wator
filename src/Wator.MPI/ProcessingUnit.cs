@@ -102,5 +102,10 @@ namespace Wator.MPI
         {
             return Communicator.world.Rank == 0;
         }
+
+        public void Process()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
