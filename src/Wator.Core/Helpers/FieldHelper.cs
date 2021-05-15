@@ -16,7 +16,7 @@ namespace Wator.Core.Helpers
             var left = new Position(position.RowIndex,
                 (position.ColumnIndex - 1 + field.GetLength(1)) % field.GetLength(1));
 
-            return new List<Position> { top, right, bottom, left };
+            return new List<Position> {top, right, bottom, left};
         }
 
         public static T[,] GetRows<T>(T[,] source, int from, int to)
@@ -38,11 +38,11 @@ namespace Wator.Core.Helpers
             return rows;
         }
 
-        public static T[][,] Split<T>(T[,] source, int partCount)
+        public static (int FromRow, int ToRow)[] GetSplitIndices<T>(T[,] source, int partCount)
         {
             var rowCount = source.GetLength(0);
             var segmentHeight = rowCount / partCount;
-            var result = new T[partCount][,];
+            var result = new (int, int)[partCount];
 
             for (var i = 0; i < partCount; i++)
             {
@@ -51,12 +51,18 @@ namespace Wator.Core.Helpers
 
                 if (i == partCount - 1) to = Math.Max(to, rowCount - 1);
 
-                result[i] = GetRows(source, from, to);
+                result[i] = (from, to);
             }
 
             return result;
         }
 
+        public static T[][,] Split<T>(T[,] source, int partCount)
+        {
+            return GetSplitIndices(source, partCount)
+                .Select(indices => GetRows(source, indices.FromRow, indices.ToRow))
+                .ToArray();
+        }
 
         public static T[,] MergeTwo<T>(T[,] partOne, T[,] partTwo)
         {
