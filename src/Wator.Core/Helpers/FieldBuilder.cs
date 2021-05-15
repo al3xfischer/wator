@@ -8,10 +8,10 @@ namespace Wator.Core.Helpers
 {
     public class FieldBuilder
     {
+        private readonly Random _random = new();
         private int _columns = 1;
         private WatorConfiguration _configuration = new();
         private int _fishCount;
-        private readonly Random _random = new();
         private int _rows = 1;
         private int _sharkCount;
 
@@ -43,37 +43,35 @@ namespace Wator.Core.Helpers
         {
             if (sharkCount < 0) throw new ArgumentOutOfRangeException(nameof(sharkCount));
 
-            _fishCount = sharkCount;
+            _sharkCount = sharkCount;
             return this;
         }
 
         public Animal[,] Build()
         {
-            if (_fishCount * _sharkCount > _rows * _columns) throw new InvalidOperationException("Cannot place more animals than cells to field");
+            if (_fishCount + _sharkCount > _rows * _columns) throw new InvalidOperationException("Cannot place ");
 
             var field = new Animal[_rows, _columns];
-            RandomlyPlaceToField(field);
+            RandomlyPlaceAnimalsToField(field);
             return field;
         }
 
-        private void RandomlyPlaceToField(Animal[,] field)
+        private void RandomlyPlaceAnimalsToField(Animal[,] field)
         {
-            var emptyPositions = GetAllPositions();
+            RandomlyPlaceToField(field, _sharkCount, CreateShark);
+            RandomlyPlaceToField(field, _fishCount, CreateFish);
+        }
 
-            for (var i = 0; i < _fishCount; i++)
+        private void RandomlyPlaceToField(Animal[,] field, int count, Func<Animal> createFunc)
+        {
+            while (count > 0)
             {
-                var randomIndex = _random.Next(emptyPositions.Count);
-                var position = emptyPositions[randomIndex];
-                emptyPositions.RemoveAt(randomIndex);
-                field[position.RowIndex, position.ColumnIndex] = CreateFish();
-            }
+                var rowIndex = _random.Next(_rows);
+                var columnIndex = _random.Next(_columns);
 
-            for (var i = 0; i < _sharkCount; i++)
-            {
-                var randomIndex = _random.Next(emptyPositions.Count);
-                var position = emptyPositions[randomIndex];
-                emptyPositions.RemoveAt(randomIndex);
-                field[position.RowIndex, position.ColumnIndex] = CreateShark();
+                if (field[rowIndex, columnIndex] is not null) continue;
+                field[rowIndex, columnIndex] = createFunc();
+                count--;
             }
         }
 
@@ -85,14 +83,6 @@ namespace Wator.Core.Helpers
         private Animal CreateShark()
         {
             return new() {Age = 0, Energy = _configuration.SharkInitialEnergy, Type = AnimalType.Shark};
-        }
-
-        private IList<Position> GetAllPositions()
-        {
-            var allPositions = from column in Enumerable.Range(0, _columns)
-                from row in Enumerable.Range(0, _rows)
-                select new Position(row, column);
-            return allPositions.ToList();
         }
     }
 }
