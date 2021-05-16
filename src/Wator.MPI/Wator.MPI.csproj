@@ -9,4 +9,8 @@
     <PackageReference Include="MPI.NET" Version="1.4.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Wator.Core\Wator.Core.csproj" />
+  </ItemGroup>
+
 </Project>
