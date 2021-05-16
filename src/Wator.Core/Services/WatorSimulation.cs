@@ -27,9 +27,9 @@ namespace Wator.Core.Services
             return RunCycleInRows(0, Field.GetLength(0) - 1);
         }
 
-        public IEnumerable<Position> RunCycleInRows(int fromRow, int toRow)
+        public IEnumerable<Position> RunCycleInRows(int fromRow, int toRow, HashSet<Position> ignoredPositions = null)
         {
-            var moved = new HashSet<Position>();
+            var moved = ignoredPositions ?? new HashSet<Position>();
 
             for (var rowIndex = fromRow; rowIndex <= toRow; rowIndex++)
             for (var colIndex = 0; colIndex < Field.GetLength(1); colIndex++)
