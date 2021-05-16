@@ -8,12 +8,13 @@ namespace Wator.Core.Services
 {
     public class WatorSimulation
     {
-        private readonly Random _random = new();
+        private readonly Random _random;
 
         public WatorSimulation(Animal[,] field, WatorConfiguration configuration = null)
         {
             Field = field ?? throw new ArgumentNullException(nameof(field));
             Configuration = configuration ?? new WatorConfiguration();
+            _random = Configuration.Seed.HasValue ? new Random(Configuration.Seed.Value) : new Random();
         }
 
         public Animal[,] Field { get; }
@@ -27,7 +28,7 @@ namespace Wator.Core.Services
             return RunCycleInRows(0, Field.GetLength(0) - 1);
         }
 
-        public IEnumerable<Position> RunCycleInRows(int fromRow, int toRow, HashSet<Position> ignoredPositions = null)
+        public HashSet<Position> RunCycleInRows(int fromRow, int toRow, HashSet<Position> ignoredPositions = null)
         {
             var ignoreInNextRow = new HashSet<Position>();
             var outOfBorderPositions = new HashSet<Position>();
@@ -41,11 +42,18 @@ namespace Wator.Core.Services
                 {
                     var currentPosition = new Position(rowIndex, colIndex);
 
-                    if (IsEmpty(currentPosition) || ignoreInCurrentRow.Contains(currentPosition)) continue;
-                    if (ContainsFish(currentPosition)) currentPosition = PerformFishChronon(currentPosition);
-                    if (ContainsShark(currentPosition)) currentPosition = PerformSharkChronon(currentPosition);
-                    if (currentPosition.RowIndex > rowIndex) ignoreInNextRow.Add(currentPosition);
-                    if (currentPosition.RowIndex < fromRow || currentPosition.RowIndex > toRow) outOfBorderPositions.Add(currentPosition);
+                    if (ignoredPositions is not null && ignoredPositions.Contains(currentPosition)) continue;
+                    if (IsEmpty(currentPosition)) continue;
+                    if (ignoreInCurrentRow.Contains(currentPosition)) continue;
+
+                    var newPosition = ContainsFish(currentPosition)
+                        ? PerformFishChronon(currentPosition)
+                        : PerformSharkChronon(currentPosition);
+
+                    if (currentPosition == newPosition) continue;
+                    if (newPosition.RowIndex > rowIndex) ignoreInNextRow.Add(newPosition);
+                    if (newPosition.RowIndex < fromRow || newPosition.RowIndex > toRow)
+                        outOfBorderPositions.Add(newPosition);
                 }
             }
 
