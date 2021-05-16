@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using Wator.Core.Entities;
 using Wator.Core.Services;
 
@@ -8,10 +6,10 @@ namespace Wator.Core.Helpers
 {
     public class FieldBuilder
     {
-        private readonly Random _random = new();
         private int _columns = 1;
         private WatorConfiguration _configuration = new();
         private int _fishCount;
+        private Random _random = new();
         private int _rows = 1;
         private int _sharkCount;
 
@@ -22,6 +20,12 @@ namespace Wator.Core.Helpers
 
             _rows = rows;
             _columns = columns;
+            return this;
+        }
+
+        public FieldBuilder WithSeed(int seed)
+        {
+            _random = new Random(seed);
             return this;
         }
 
