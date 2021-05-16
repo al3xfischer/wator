@@ -29,21 +29,27 @@ namespace Wator.Core.Services
 
         public IEnumerable<Position> RunCycleInRows(int fromRow, int toRow, HashSet<Position> ignoredPositions = null)
         {
-            var moved = ignoredPositions ?? new HashSet<Position>();
+            var ignoreInNextRow = new HashSet<Position>();
+            var outOfBorderPositions = new HashSet<Position>();
 
             for (var rowIndex = fromRow; rowIndex <= toRow; rowIndex++)
-            for (var colIndex = 0; colIndex < Field.GetLength(1); colIndex++)
             {
-                var currentPosition = new Position(rowIndex, colIndex);
+                var ignoreInCurrentRow = ignoreInNextRow;
+                ignoreInNextRow = new HashSet<Position>();
 
-                if (IsEmpty(currentPosition) || moved.Contains(currentPosition)) continue;
-                if (ContainsFish(currentPosition)) currentPosition = PerformFishChronon(currentPosition);
-                if (ContainsShark(currentPosition))
-                    currentPosition = PerformSharkChronon(currentPosition);
-                moved.Add(currentPosition);
+                for (var colIndex = 0; colIndex < Field.GetLength(1); colIndex++)
+                {
+                    var currentPosition = new Position(rowIndex, colIndex);
+
+                    if (IsEmpty(currentPosition) || ignoreInCurrentRow.Contains(currentPosition)) continue;
+                    if (ContainsFish(currentPosition)) currentPosition = PerformFishChronon(currentPosition);
+                    if (ContainsShark(currentPosition)) currentPosition = PerformSharkChronon(currentPosition);
+                    if (currentPosition.RowIndex > rowIndex) ignoreInNextRow.Add(currentPosition);
+                    if (currentPosition.RowIndex < fromRow || currentPosition.RowIndex > toRow) outOfBorderPositions.Add(currentPosition);
+                }
             }
 
-            return moved;
+            return outOfBorderPositions;
         }
 
         private Position ChooseField(IEnumerable<Position> candidates)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Wator.Core.Entities;
@@ -47,12 +48,13 @@ namespace Wator.Multithreading
 
         public static void ProcessIteration(WatorSimulation simulation, (int, int)[] splitBoundaries)
         {
-            Parallel.ForEach(splitBoundaries, (boundary) =>
+            var ignoreInBorderProcessing = new IEnumerable<Position>[splitBoundaries.Length];
+            Parallel.For(0, splitBoundaries.Length, i =>
             {
-                var (fromRow, toRow) = boundary;
+                var (fromRow, toRow) = splitBoundaries[i];
                 var innerTopBorder = fromRow + 1;
                 var outerTopBorder = toRow - 1;
-                simulation.RunCycleInRows(innerTopBorder, outerTopBorder);
+                ignoreInBorderProcessing[i] = simulation.RunCycleInRows(innerTopBorder, outerTopBorder);
             });
 
             foreach (var (fromRow, toRow) in splitBoundaries)
