@@ -1,5 +1,8 @@
-﻿namespace Wator.Core.Entities
+﻿using System;
+
+namespace Wator.Core.Entities
 {
+    [Serializable]
     public class Animal
     {
         public int Energy { get; set; }

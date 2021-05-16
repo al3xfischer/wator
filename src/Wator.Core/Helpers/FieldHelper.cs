@@ -16,7 +16,7 @@ namespace Wator.Core.Helpers
             var left = new Position(position.RowIndex,
                 (position.ColumnIndex - 1 + field.GetLength(1)) % field.GetLength(1));
 
-            return new List<Position> {top, right, bottom, left};
+            return new List<Position> { top, right, bottom, left };
         }
 
         public static T[,] GetRows<T>(T[,] source, int from, int to)
@@ -80,6 +80,14 @@ namespace Wator.Core.Helpers
         public static T[,] Merge<T>(T[][,] parts)
         {
             return parts.Aggregate(MergeTwo);
+        }
+
+        public static T[][,] CutBefore<T>(T[,] source, int index)
+        {
+            var lastIndex = source.GetLength(0) - 1;
+            var partOne = GetRows(source, 0, index - 1);
+            var partTwo = GetRows(source, index, lastIndex);
+            return new T[2][,] { partOne, partTwo };
         }
     }
 }

@@ -17,7 +17,7 @@ namespace Wator.Core.Services
             _random = Configuration.Seed.HasValue ? new Random(Configuration.Seed.Value) : new Random();
         }
 
-        public Animal[,] Field { get; }
+        public Animal[,] Field { get; set; }
         public WatorConfiguration Configuration { get; }
 
         public int FishCount => Field.Cast<Animal>().Count(a => a?.Type == AnimalType.Fish);
@@ -178,13 +178,13 @@ namespace Wator.Core.Services
 
         private void BreedSharkToPosition(Position position)
         {
-            var babyShark = new Animal {Type = AnimalType.Shark, Age = 0, Energy = Configuration.SharkInitialEnergy};
+            var babyShark = new Animal { Type = AnimalType.Shark, Age = 0, Energy = Configuration.SharkInitialEnergy };
             SetAnimalAtPosition(position, babyShark);
         }
 
         private void BreedFishToPosition(Position position)
         {
-            var babyFish = new Animal {Type = AnimalType.Fish, Age = 0, Energy = Configuration.FishInitialEnergy};
+            var babyFish = new Animal { Type = AnimalType.Fish, Age = 0, Energy = Configuration.FishInitialEnergy };
             SetAnimalAtPosition(position, babyFish);
         }
 
