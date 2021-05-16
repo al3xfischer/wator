@@ -15,7 +15,7 @@ namespace Wator.Multithreading
         public const int Rows = 10_000;
         public const int Columns = 10_000;
 
-        public const int Iterations = 100;
+        public const int Iterations = 1;
 
         public const int ThreadCount = 32;
 
@@ -47,9 +47,9 @@ namespace Wator.Multithreading
 
         public static void ProcessIteration(WatorSimulation simulation, (int, int)[] splitBoundaries)
         {
-            Parallel.For(0, ThreadCount, i =>
+            Parallel.ForEach(splitBoundaries, (boundary) =>
             {
-                var (fromRow, toRow) = splitBoundaries[i];
+                var (fromRow, toRow) = boundary;
                 var innerTopBorder = fromRow + 1;
                 var outerTopBorder = toRow - 1;
                 simulation.RunCycleInRows(innerTopBorder, outerTopBorder);
