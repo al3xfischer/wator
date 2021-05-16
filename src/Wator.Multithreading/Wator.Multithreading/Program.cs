@@ -15,7 +15,7 @@ namespace Wator.Multithreading
         public const int Rows = 10_000;
         public const int Columns = 10_000;
 
-        public const int Iterations = 1;
+        public const int Iterations = 10;
 
         public const int ThreadCount = 32;
 
