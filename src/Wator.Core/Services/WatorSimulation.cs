@@ -10,18 +10,18 @@ namespace Wator.Core.Services
     {
         private readonly Random _random;
 
-        public WatorSimulation(Animal[,] field, WatorConfiguration configuration = null)
+        public WatorSimulation(int[,] field, WatorConfiguration configuration = null)
         {
             Field = field ?? throw new ArgumentNullException(nameof(field));
             Configuration = configuration ?? new WatorConfiguration();
             _random = Configuration.Seed.HasValue ? new Random(Configuration.Seed.Value) : new Random();
         }
 
-        public Animal[,] Field { get; }
+        public int[,] Field { get; }
         public WatorConfiguration Configuration { get; }
 
-        public int FishCount => Field.Cast<Animal>().Count(a => a?.Type == AnimalType.Fish);
-        public int SharkCount => Field.Cast<Animal>().Count(a => a?.Type == AnimalType.Shark);
+        public int FishCount => Field.Cast<int>().Count(a => a > 0);
+        public int SharkCount => Field.Cast<int>().Count(a => a < 0);
 
         public IEnumerable<Position> RunCycle()
         {
@@ -80,24 +80,24 @@ namespace Wator.Core.Services
             if (!ContainsShark(position))
                 throw new InvalidOperationException("Cannot perform action for non-shark cells.");
 
-            Position newPosition = null;
-            var shark = GetAnimalAtPosition(position);
-            if (shark.Energy == 0)
-            {
-                SetAnimalAtPosition(position, null);
-                return position;
-            }
+            var newPosition = position;
+            var currentEnergy = GetAnimalAtPosition(position);
 
-            shark.Age++;
-            shark.Energy--;
+            if (currentEnergy == 0)
+            {
+                SetAnimalAtPosition(position, 0);
+                return newPosition;
+            }
 
             if (CanEatPreyOrMoveToEmptyField(position))
             {
                 newPosition = EatPreyOrMoveToEmptyField(position);
-                if (shark.Age % Configuration.SharkBreedTime == 0) BreedSharkToPosition(position);
+                if (currentEnergy % Configuration.SharkBreedTime == 0) BreedSharkToPosition(position);
             }
 
-            return newPosition ?? position;
+            SetAnimalAtPosition(newPosition, GetAnimalAtPosition(newPosition) + 1);
+
+            return newPosition;
         }
 
         private Position PerformFishChronon(Position position)
@@ -105,17 +105,19 @@ namespace Wator.Core.Services
             if (!ContainsFish(position))
                 throw new InvalidOperationException("Cannot perform action for non-fish cells.");
 
-            Position newPosition = null;
-            var fish = GetAnimalAtPosition(position);
-            fish.Age++;
+            var newPosition = position;
+            var currentEnergy = GetAnimalAtPosition(position);
+            var updatedEnergy = currentEnergy + 1;
 
             if (CanMoveToEmptyField(position))
             {
                 newPosition = MoveToEmptyField(position);
-                if (fish.Age % Configuration.FishBreedTime == 0) BreedFishToPosition(position);
+                if (currentEnergy % Configuration.FishBreedTime == 0) BreedFishToPosition(position);
             }
 
-            return newPosition ?? position;
+            SetAnimalAtPosition(newPosition, updatedEnergy);
+
+            return newPosition;
         }
 
         private IEnumerable<Position> GetEmptySurroundingFields(Position position)
@@ -136,17 +138,18 @@ namespace Wator.Core.Services
 
         private void MoveToField(Position oldPosition, Position newPosition)
         {
-            SetAnimalAtPosition(newPosition, GetAnimalAtPosition(oldPosition));
-            SetAnimalAtPosition(oldPosition, null);
+            var oldPositionAnimal = GetAnimalAtPosition(oldPosition);
+            var newPositionAnimal = GetAnimalAtPosition(newPosition);
+
+            SetAnimalAtPosition(newPosition, oldPositionAnimal - newPositionAnimal);
+            SetAnimalAtPosition(oldPosition, 0);
         }
 
         private Position EatPrey(Position position)
         {
             if (!CanEatPrey(position)) throw new InvalidOperationException("Cannot eat prey.");
 
-            var shark = GetAnimalAtPosition(position);
             var preyPosition = ChoosePreyInSurroundingField(position);
-            shark.Energy += GetAnimalAtPosition(preyPosition).Energy;
             MoveToField(position, preyPosition);
             return preyPosition;
         }
@@ -178,37 +181,35 @@ namespace Wator.Core.Services
 
         private void BreedSharkToPosition(Position position)
         {
-            var babyShark = new Animal {Type = AnimalType.Shark, Age = 0, Energy = Configuration.SharkInitialEnergy};
-            SetAnimalAtPosition(position, babyShark);
+            SetAnimalAtPosition(position, -Configuration.SharkInitialEnergy);
         }
 
         private void BreedFishToPosition(Position position)
         {
-            var babyFish = new Animal {Type = AnimalType.Fish, Age = 0, Energy = Configuration.FishInitialEnergy};
-            SetAnimalAtPosition(position, babyFish);
+            SetAnimalAtPosition(position, Configuration.FishInitialEnergy);
         }
 
         private bool ContainsFish(Position position)
         {
-            return GetAnimalAtPosition(position)?.Type == AnimalType.Fish;
+            return GetAnimalAtPosition(position) > 0;
         }
 
         private bool ContainsShark(Position position)
         {
-            return GetAnimalAtPosition(position)?.Type == AnimalType.Shark;
+            return GetAnimalAtPosition(position) < 0;
         }
 
         private bool IsEmpty(Position position)
         {
-            return GetAnimalAtPosition(position) is null;
+            return GetAnimalAtPosition(position) == 0;
         }
 
-        private Animal GetAnimalAtPosition(Position position)
+        private int GetAnimalAtPosition(Position position)
         {
             return Field[position.RowIndex, position.ColumnIndex];
         }
 
-        private void SetAnimalAtPosition(Position position, Animal animal)
+        private void SetAnimalAtPosition(Position position, int animal)
         {
             Field[position.RowIndex, position.ColumnIndex] = animal;
         }

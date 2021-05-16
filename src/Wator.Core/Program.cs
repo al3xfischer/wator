@@ -1,28 +1,13 @@
 ﻿using System;
-using Wator.Core.Entities;
+using Wator.Core.Helpers;
 using Wator.Core.Services;
 
-var simulation = new WatorSimulation(new Animal[50, 100]);
-var initFishCount = 30;
-var initSharkCount = 15;
-
-var random = new Random(5);
-
-for (var i = 0; i < initFishCount; i++)
-{
-    var rowIndex = random.Next(0, simulation.Field.GetLength(0));
-    var colIndex = random.Next(0, simulation.Field.GetLength(1));
-
-    simulation.Field[rowIndex, colIndex] = new Animal { Age = 0, Energy = 1, Type = AnimalType.Fish };
-}
-
-for (var i = 0; i < initSharkCount; i++)
-{
-    var rowIndex = random.Next(0, simulation.Field.GetLength(0));
-    var colIndex = random.Next(0, simulation.Field.GetLength(1));
-
-    simulation.Field[rowIndex, colIndex] = new Animal { Age = 0, Energy = 20, Type = AnimalType.Shark };
-}
+var field = new FieldBuilder()
+    .WithFishCount(50)
+    .WithSharkCount(50)
+    .WithDimensions(50, 100)
+    .Build();
+var simulation = new WatorSimulation(field);
 
 Console.SetWindowSize(simulation.Field.GetLength(1) + 1, simulation.Field.GetLength(0) + 1);
 
@@ -32,7 +17,7 @@ while (true)
     simulation.RunCycle();
 }
 
-static void RenderField(Animal[,] field)
+static void RenderField(int[,] field)
 {
     for (var i = 0; i < field.GetLength(0); i++)
     {
@@ -40,12 +25,12 @@ static void RenderField(Animal[,] field)
         {
             var cell = field[i, j];
 
-            switch (cell?.Type)
+            switch (cell)
             {
-                case AnimalType.Shark:
+                case < 0:
                     RenderShark();
                     break;
-                case AnimalType.Fish:
+                case > 0:
                     RenderFish();
                     break;
                 default:

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Wator.Core.Entities;
 using Wator.Core.Helpers;
@@ -15,10 +13,10 @@ namespace Wator.Multithreading
         public const int FishCount = 100_000;
         public const int SharkCount = 100_000;
 
-        public const int Rows = 10_000;
-        public const int Columns = 10_000;
+        public const int Rows = 1000;
+        public const int Columns = 1000;
 
-        public const int Iterations = 20;
+        public const int Iterations = 100;
 
         public const int ThreadCount = 32;
 
@@ -75,7 +73,7 @@ namespace Wator.Multithreading
             }
         }
 
-        public static Animal[,] CreateField()
+        public static int[,] CreateField()
         {
             return new FieldBuilder()
                 .WithConfiguration(new WatorConfiguration {FishBreedTime = 1, Seed = 42})
