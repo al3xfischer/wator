@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Wator.Core.Entities;
 using Wator.Core.Helpers;
@@ -16,7 +18,7 @@ namespace Wator.Multithreading
         public const int Rows = 10_000;
         public const int Columns = 10_000;
 
-        public const int Iterations = 10;
+        public const int Iterations = 20;
 
         public const int ThreadCount = 32;
 
@@ -44,7 +46,13 @@ namespace Wator.Multithreading
 
         public static void ProcessIterations(WatorSimulation simulation, (int, int)[] splitBoundaries)
         {
-            for (var i = 0; i < Iterations; i++) ProcessIteration(simulation, splitBoundaries);
+            DrawProgressInPercent(0, Iterations);
+
+            for (var i = 0; i < Iterations; i++)
+            {
+                ProcessIteration(simulation, splitBoundaries);
+                DrawProgressInPercent(i + 1, Iterations);
+            }
         }
 
         public static void ProcessIteration(WatorSimulation simulation, (int, int)[] splitBoundaries)
@@ -60,7 +68,7 @@ namespace Wator.Multithreading
 
             for (var i = 0; i < splitBoundaries.Length; i++)
             {
-                var(fromRow, toRow) = splitBoundaries[i];
+                var (fromRow, toRow) = splitBoundaries[i];
                 var ignorePositions = ignoreInBorderProcessing[i];
                 simulation.RunCycleInRows(fromRow, fromRow, ignorePositions);
                 simulation.RunCycleInRows(toRow, toRow, ignorePositions);
@@ -70,12 +78,22 @@ namespace Wator.Multithreading
         public static Animal[,] CreateField()
         {
             return new FieldBuilder()
-                .WithConfiguration(new WatorConfiguration{ FishBreedTime = 1, Seed = 42})
+                .WithConfiguration(new WatorConfiguration {FishBreedTime = 1, Seed = 42})
                 .WithSeed(101)
                 .WithDimensions(Rows, Columns)
                 .WithFishCount(FishCount)
                 .WithSharkCount(SharkCount)
                 .Build();
+        }
+
+        public static void DrawProgressInPercent(int currentItem, int totalAmount)
+        {
+            Console.Clear();
+            var left = Console.CursorLeft;
+            var top = Console.CursorTop;
+            var progressInPercent = (double) currentItem / totalAmount;
+            Console.WriteLine($"{Math.Round(progressInPercent * 100, 2)}%");
+            Console.SetCursorPosition(left, top);
         }
     }
 }
