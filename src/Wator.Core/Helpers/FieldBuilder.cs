@@ -1,5 +1,4 @@
 ﻿using System;
-using Wator.Core.Entities;
 using Wator.Core.Services;
 
 namespace Wator.Core.Helpers
@@ -51,42 +50,42 @@ namespace Wator.Core.Helpers
             return this;
         }
 
-        public Animal[,] Build()
+        public int[,] Build()
         {
             if (_fishCount + _sharkCount > _rows * _columns) throw new InvalidOperationException("Cannot place ");
 
-            var field = new Animal[_rows, _columns];
+            var field = new int[_rows, _columns];
             RandomlyPlaceAnimalsToField(field);
             return field;
         }
 
-        private void RandomlyPlaceAnimalsToField(Animal[,] field)
+        private void RandomlyPlaceAnimalsToField(int[,] field)
         {
             RandomlyPlaceToField(field, _sharkCount, CreateShark);
             RandomlyPlaceToField(field, _fishCount, CreateFish);
         }
 
-        private void RandomlyPlaceToField(Animal[,] field, int count, Func<Animal> createFunc)
+        private void RandomlyPlaceToField(int[,] field, int count, Func<int> createFunc)
         {
             while (count > 0)
             {
                 var rowIndex = _random.Next(_rows);
                 var columnIndex = _random.Next(_columns);
 
-                if (field[rowIndex, columnIndex] is not null) continue;
+                if (field[rowIndex, columnIndex] != 0) continue;
                 field[rowIndex, columnIndex] = createFunc();
                 count--;
             }
         }
 
-        private Animal CreateFish()
+        private int CreateFish()
         {
-            return new() {Age = 0, Energy = _configuration.FishInitialEnergy, Type = AnimalType.Fish};
+            return _configuration.FishInitialEnergy;
         }
 
-        private Animal CreateShark()
+        private int CreateShark()
         {
-            return new() {Age = 0, Energy = _configuration.SharkInitialEnergy, Type = AnimalType.Shark};
+            return -_configuration.SharkInitialEnergy;
         }
     }
 }

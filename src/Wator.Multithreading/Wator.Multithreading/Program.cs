@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Wator.Core.Entities;
 using Wator.Core.Helpers;
@@ -82,7 +80,7 @@ namespace Wator.Multithreading
             });
         }
 
-        public static Animal[,] CreateField()
+        public static int[,] CreateField()
         {
             return new FieldBuilder()
                 .WithConfiguration(new WatorConfiguration {FishBreedTime = 1, Seed = 42})
