@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Wator.Core.Entities;
 using Wator.Core.Helpers;
@@ -83,7 +84,7 @@ namespace Wator.Multithreading
         public static int[,] CreateField()
         {
             return new FieldBuilder()
-                .WithConfiguration(new WatorConfiguration {FishBreedTime = 1, Seed = 42})
+                .WithConfiguration(new WatorConfiguration { FishBreedTime = 1, Seed = 42 })
                 .WithSeed(101)
                 .WithDimensions(Rows, Columns)
                 .WithFishCount(FishCount)
@@ -96,7 +97,7 @@ namespace Wator.Multithreading
             Console.Clear();
             var left = Console.CursorLeft;
             var top = Console.CursorTop;
-            var progressInPercent = (double) currentItem / totalAmount;
+            var progressInPercent = (double)currentItem / totalAmount;
             Console.WriteLine($"{Math.Round(progressInPercent * 100, 2)}%");
             Console.SetCursorPosition(left, top);
         }

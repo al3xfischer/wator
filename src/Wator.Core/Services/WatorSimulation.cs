@@ -17,7 +17,7 @@ namespace Wator.Core.Services
             _random = Configuration.Seed.HasValue ? new Random(Configuration.Seed.Value) : new Random();
         }
 
-        public int[,] Field { get; }
+        public int[,] Field { get; set; }
         public WatorConfiguration Configuration { get; }
 
         public int FishCount => Field.Cast<int>().Count(a => a > 0);
@@ -32,7 +32,7 @@ namespace Wator.Core.Services
         {
             ignoredPositions ??= new HashSet<Position>();
 
-            var ignoreInNextRow = new HashSet<Position>();
+            //var ignoreInNextRow = new HashSet<Position>();
             var outOfBorderPositions = new HashSet<Position>();
 
             (fromRow, toRow) = Normalize(fromRow, toRow);
@@ -40,15 +40,15 @@ namespace Wator.Core.Services
             for (var rowIndex = fromRow; rowIndex <= toRow; rowIndex++)
             {
                 var normalizedRowIndex = rowIndex % Field.GetLength(0);
-                var ignoreInCurrentRow = ignoreInNextRow;
-                ignoreInNextRow = new HashSet<Position>();
+                //var ignoreInCurrentRow = ignoreInNextRow;
+                //ignoreInNextRow = new HashSet<Position>();
 
                 for (var colIndex = 0; colIndex < Field.GetLength(1); colIndex++)
                 {
                     var currentPosition = new Position(normalizedRowIndex, colIndex);
 
                     if (ignoredPositions.Contains(currentPosition)) continue;
-                    if (ignoreInCurrentRow.Contains(currentPosition)) continue;
+                    //if (ignoreInCurrentRow.Contains(currentPosition)) continue;
                     if (IsEmpty(currentPosition)) continue;
 
                     var newPosition = ContainsFish(currentPosition)
@@ -56,9 +56,10 @@ namespace Wator.Core.Services
                         : PerformSharkChronon(currentPosition);
 
                     if (currentPosition == newPosition) continue;
+                    ignoredPositions.Add(newPosition);
 
-                    if (newPosition.RowIndex > normalizedRowIndex) ignoreInNextRow.Add(newPosition);
-                    if (newPosition.ColumnIndex > colIndex) ignoreInCurrentRow.Add(newPosition);
+                    //if (newPosition.RowIndex > normalizedRowIndex) ignoreInNextRow.Add(newPosition);
+                    //if (newPosition.ColumnIndex > colIndex) ignoreInCurrentRow.Add(newPosition);
                     if (newPosition.RowIndex < fromRow || newPosition.RowIndex > toRow)
                         outOfBorderPositions.Add(newPosition);
                 }

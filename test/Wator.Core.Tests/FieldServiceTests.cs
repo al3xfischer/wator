@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Wator.Core.Entities;
 using Wator.Core.Helpers;
@@ -13,28 +12,11 @@ namespace Wator.Core.Tests
         [Fact]
         public void SanityTestSimulation()
         {
-            var simulation = new WatorSimulation(new Animal[100, 100]);
             var initFishCount = 300;
             var initSharkCount = 300;
+            var field = new FieldBuilder().WithDimensions(100, 100).WithFishCount(initFishCount).WithSharkCount(initSharkCount).Build();
+            var simulation = new WatorSimulation(field);
             var cycleCount = 10;
-
-            var random = new Random(5);
-
-            for (var i = 0; i < initFishCount; i++)
-            {
-                var rowIndex = random.Next(0, simulation.Field.GetLength(0));
-                var colIndex = random.Next(0, simulation.Field.GetLength(1));
-
-                simulation.Field[rowIndex, colIndex] = new Animal {Age = 0, Energy = 1, Type = AnimalType.Fish};
-            }
-
-            for (var i = 0; i < initSharkCount; i++)
-            {
-                var rowIndex = random.Next(0, simulation.Field.GetLength(0));
-                var colIndex = random.Next(0, simulation.Field.GetLength(1));
-
-                simulation.Field[rowIndex, colIndex] = new Animal {Age = 0, Energy = 5, Type = AnimalType.Shark};
-            }
 
             for (var i = 0; i < cycleCount; i++) simulation.RunCycle();
         }
@@ -42,8 +24,8 @@ namespace Wator.Core.Tests
         [Fact]
         public void Two_Subfield_Can_Be_Merged()
         {
-            var subOne = new[,] {{1, 2, 3}};
-            var subTwo = new[,] {{4, 5, 6}};
+            var subOne = new[,] { { 1, 2, 3 } };
+            var subTwo = new[,] { { 4, 5, 6 } };
 
             var actual = FieldHelper.MergeTwo(subOne, subTwo);
 
@@ -55,11 +37,11 @@ namespace Wator.Core.Tests
         [Fact]
         public void Multiple_Subfields_Can_Be_Merged()
         {
-            var subOne = new[,] {{1, 2, 3}};
-            var subTwo = new[,] {{4, 5, 6}};
-            var subThree = new[,] {{7, 8, 9}};
+            var subOne = new[,] { { 1, 2, 3 } };
+            var subTwo = new[,] { { 4, 5, 6 } };
+            var subThree = new[,] { { 7, 8, 9 } };
 
-            var subFields = new[] {subOne, subTwo, subThree};
+            var subFields = new[] { subOne, subTwo, subThree };
 
             var actual = FieldHelper.Merge(subFields);
 
@@ -136,7 +118,7 @@ namespace Wator.Core.Tests
             };
 
             var actual = FieldHelper.GetSurroundingFields(completeField, new Position(1, 1));
-            var expected = new List<Position> {new(0, 1), new(1, 2), new(2, 1), new(1, 0)};
+            var expected = new List<Position> { new(0, 1), new(1, 2), new(2, 1), new(1, 0) };
 
             Assert.Equal(expected, actual);
         }
@@ -152,7 +134,7 @@ namespace Wator.Core.Tests
             };
 
             var actual = FieldHelper.GetSurroundingFields(completeField, new Position(0, 0));
-            var expected = new List<Position> {new(2, 0), new(0, 1), new(1, 0), new(0, 2)};
+            var expected = new List<Position> { new(2, 0), new(0, 1), new(1, 0), new(0, 2) };
 
             Assert.Equal(expected, actual);
         }
@@ -168,7 +150,7 @@ namespace Wator.Core.Tests
             };
 
             var actual = FieldHelper.GetSurroundingFields(completeField, new Position(2, 2));
-            var expected = new List<Position> {new(1, 2), new(2, 0), new(0, 2), new(2, 1)};
+            var expected = new List<Position> { new(1, 2), new(2, 0), new(0, 2), new(2, 1) };
 
             Assert.Equal(expected, actual);
         }
@@ -176,13 +158,11 @@ namespace Wator.Core.Tests
         [Fact]
         public void Shark_Eats_Nearby_Fish()
         {
-            var shark = new Animal {Type = AnimalType.Shark, Age = 5, Energy = 3};
-            var fish = new Animal {Type = AnimalType.Fish, Age = 2, Energy = 2};
             var field = new[,]
             {
-                {null, null, shark},
-                {null, null, null},
-                {null, null, fish}
+                {0, 0, -30},
+                {0, 0, 0},
+                {0, 0, 20}
             };
             var simulation = new WatorSimulation(field);
 
@@ -195,27 +175,23 @@ namespace Wator.Core.Tests
 
             var expectedField = new[,]
             {
-                {null, null, null},
-                {null, null, null},
-                {null, null, shark}
+                {0, 0, 0},
+                {0, 0, 0},
+                {0, 0, -49}
             };
 
             Assert.Equal(expectedField, field);
-            Assert.Equal(expectedChanges, actualChanges);
-            Assert.Equal(6, shark.Age);
-            Assert.Equal(4, shark.Energy);
         }
 
         [Fact]
         public void Shark_Hits_Zero_Energy_And_Dies()
         {
-            var shark = new Animal {Type = AnimalType.Shark, Age = 5, Energy = 1};
-            var configuration = new WatorConfiguration {SharkBreedTime = 10};
+            var configuration = new WatorConfiguration { SharkBreedTime = 10 };
             var field = new[,]
             {
-                {null, null, shark},
-                {null, null, null},
-                {null, null, null}
+                {0, 0, -2},
+                {0, 0, 0},
+                {0, 0, 0}
             };
             var simulation = new WatorSimulation(field, configuration);
 
@@ -228,13 +204,12 @@ namespace Wator.Core.Tests
         [Fact]
         public void Shark_Breeds_When_Reaching_BreedTime()
         {
-            var fish = new Animal { Type = AnimalType.Shark, Age = 0, Energy = 50 };
             var configuration = new WatorConfiguration { SharkBreedTime = 2 };
             var field = new[,]
             {
-                {null, null, null},
-                {null, null, null},
-                {null, null, fish}
+                {0, 0, 0},
+                {0, 0, 0},
+                {0, 0, -2}
             };
 
             var simulation = new WatorSimulation(field, configuration);
@@ -248,12 +223,11 @@ namespace Wator.Core.Tests
         [Fact]
         public void Fish_Moves_One_Step()
         {
-            var fish = new Animal {Type = AnimalType.Fish, Age = 2, Energy = 2};
             var field = new[,]
             {
-                {null, null, null},
-                {null, null, null},
-                {null, null, fish}
+                {0, 0, 0},
+                {0, 0, 0},
+                {0, 0, 20}
             };
             var simulation = new WatorSimulation(field);
 
@@ -265,17 +239,16 @@ namespace Wator.Core.Tests
         [Fact]
         public void Fish_Breeds_When_Reaching_BreedTime()
         {
-            var fish = new Animal { Type = AnimalType.Fish, Age = 0, Energy = 5 };
-            var configuration = new WatorConfiguration {FishBreedTime = 2};
+            var configuration = new WatorConfiguration { FishBreedTime = 2, FishInitialEnergy = 5 };
             var field = new[,]
             {
-                {null, null, null},
-                {null, null, null},
-                {null, null, fish}
+                {0, 0, 0},
+                {0, 0, 0},
+                {0, 0, 1}
             };
 
             var simulation = new WatorSimulation(field, configuration);
-            
+
             simulation.RunCycle();
             simulation.RunCycle();
 

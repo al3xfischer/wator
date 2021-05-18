@@ -26,8 +26,8 @@ namespace wator.mpi
             using (new Environment(ref args))
             {
                 var comm = Communicator.world;
-                var subfields = new Animal[comm.Size][,];
-                Animal[,] field = new Animal[0, 0];
+                var subfields = new int[comm.Size][,];
+                int[,] field = new int[0, 0];
                 var config = new WatorConfiguration();
                 //Console.WriteLine(comm.Rank);
                 if (IsMaster())
@@ -38,7 +38,7 @@ namespace wator.mpi
                 var stopwatch = new Stopwatch();
                 for (var iteration = 0; iteration < Iterations; iteration++)
                 {
-                    Animal[][,] subFields = new Animal[comm.Size][,];
+                    int[][,] subFields = new int[comm.Size][,];
                     if (IsMaster()) subFields = FieldHelper.Split(field, comm.Size);
                     var subfield = comm.Scatter(subFields, 0);
                     //Console.WriteLine("got sub");
@@ -76,7 +76,7 @@ namespace wator.mpi
             return Communicator.world.Rank == 0;
         }
 
-        public static (Animal[,], WatorConfiguration) CreateField()
+        public static (int[,], WatorConfiguration) CreateField()
         {
             var configuration = new WatorConfiguration { FishBreedTime = 1, Seed = 999 };
             var field = new FieldBuilder()
@@ -90,33 +90,33 @@ namespace wator.mpi
             return (field, configuration);
         }
 
-        static void RenderField(Animal[,] field)
+        static void RenderField(int[,] field)
         {
             Console.Clear();
 
-            for (var i = 0; i < field.GetLength(0); i++)
-            {
-                Console.Write($"{i:000}: ");
-                for (var j = 0; j < field.GetLength(1); j++)
-                {
-                    var cell = field[i, j];
+            //for (var i = 0; i < field.GetLength(0); i++)
+            //{
+            //    Console.Write($"{i:000}: ");
+            //    for (var j = 0; j < field.GetLength(1); j++)
+            //    {
+            //        var cell = field[i, j];
 
-                    switch (cell?.Type)
-                    {
-                        case AnimalType.Shark:
-                            RenderShark();
-                            break;
-                        case AnimalType.Fish:
-                            RenderFish();
-                            break;
-                        default:
-                            RenderWater();
-                            break;
-                    }
-                }
+            //        switch (cell?.Type)
+            //        {
+            //            case AnimalType.Shark:
+            //                RenderShark();
+            //                break;
+            //            case AnimalType.Fish:
+            //                RenderFish();
+            //                break;
+            //            default:
+            //                RenderWater();
+            //                break;
+            //        }
+            //    }
 
-                Console.WriteLine();
-            }
+            //    Console.WriteLine();
+            //}
 
             Console.SetCursorPosition(0, 0);
         }
@@ -142,7 +142,7 @@ namespace wator.mpi
             Console.ResetColor();
         }
 
-        private static Animal[,] ProcessIterion(WatorConfiguration configuration, Animal[,] field, Intracommunicator comm)
+        private static int[,] ProcessIterion(WatorConfiguration configuration, int[,] field, Intracommunicator comm)
         {
             //var args = new string[0];
             //using (new Environment(ref args))
@@ -214,7 +214,7 @@ namespace wator.mpi
             return stopwatch.ElapsedMilliseconds;
         }
 
-        public static void ProcessIterations(WatorConfiguration configuration, Animal[,] field, Intracommunicator comm)
+        public static void ProcessIterations(WatorConfiguration configuration, int[,] field, Intracommunicator comm)
         {
             DrawProgressInPercent(0, Iterations);
 
