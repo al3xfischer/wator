@@ -30,34 +30,50 @@ namespace Wator.Core.Services
 
         public HashSet<Position> RunCycleInRows(int fromRow, int toRow, HashSet<Position> ignoredPositions = null)
         {
+            ignoredPositions ??= new HashSet<Position>();
+
             var ignoreInNextRow = new HashSet<Position>();
             var outOfBorderPositions = new HashSet<Position>();
 
+            (fromRow, toRow) = Normalize(fromRow, toRow);
+
             for (var rowIndex = fromRow; rowIndex <= toRow; rowIndex++)
             {
+                var normalizedRowIndex = rowIndex % Field.GetLength(0);
                 var ignoreInCurrentRow = ignoreInNextRow;
                 ignoreInNextRow = new HashSet<Position>();
 
                 for (var colIndex = 0; colIndex < Field.GetLength(1); colIndex++)
                 {
-                    var currentPosition = new Position(rowIndex, colIndex);
+                    var currentPosition = new Position(normalizedRowIndex, colIndex);
 
-                    if (ignoredPositions is not null && ignoredPositions.Contains(currentPosition)) continue;
-                    if (IsEmpty(currentPosition)) continue;
+                    if (ignoredPositions.Contains(currentPosition)) continue;
                     if (ignoreInCurrentRow.Contains(currentPosition)) continue;
-
+                    if (IsEmpty(currentPosition)) continue;
+                    
                     var newPosition = ContainsFish(currentPosition)
                         ? PerformFishChronon(currentPosition)
                         : PerformSharkChronon(currentPosition);
 
                     if (currentPosition == newPosition) continue;
-                    if (newPosition.RowIndex > rowIndex) ignoreInNextRow.Add(newPosition);
+
+                    if (newPosition.RowIndex > normalizedRowIndex) ignoreInNextRow.Add(newPosition);
+                    if (newPosition.ColumnIndex > colIndex) ignoreInCurrentRow.Add(newPosition);
                     if (newPosition.RowIndex < fromRow || newPosition.RowIndex > toRow)
                         outOfBorderPositions.Add(newPosition);
                 }
             }
 
             return outOfBorderPositions;
+        }
+
+        private (int FromRow, int ToRow) Normalize(int fromRow, int toRow)
+        {
+            var rowCount = Field.GetLength(0);
+            fromRow %= rowCount;
+            toRow %= rowCount;
+            if (fromRow > toRow) toRow += fromRow + Field.GetLength(0) - fromRow;
+            return (fromRow, toRow);
         }
 
         private Position ChooseField(IEnumerable<Position> candidates)
