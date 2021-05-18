@@ -41,6 +41,7 @@ namespace wator.mpi
                     int[][,] subFields = new int[comm.Size][,];
                     if (IsMaster()) subFields = FieldHelper.Split(field, comm.Size);
                     var subfield = comm.Scatter(subFields, 0);
+                    Console.WriteLine(subfield.GetLength(0));
                     //Console.WriteLine("got sub");
                     if (IsMaster()) stopwatch.Start();
                     var subResult = ProcessIterion(config, subfield, comm);

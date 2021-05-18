@@ -80,7 +80,7 @@ namespace Wator.Core.Helpers
 
         private int CreateFish()
         {
-            return _configuration.FishInitialEnergy;
+            return _configuration.FishInitialAge;
         }
 
         private int CreateShark()

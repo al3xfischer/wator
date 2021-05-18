@@ -203,7 +203,7 @@ namespace Wator.Core.Services
 
         private void BreedFishToPosition(Position position)
         {
-            SetAnimalAtPosition(position, Configuration.FishInitialEnergy);
+            SetAnimalAtPosition(position, Configuration.FishInitialAge);
         }
 
         private bool ContainsFish(Position position)

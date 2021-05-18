@@ -239,7 +239,7 @@ namespace Wator.Core.Tests
         [Fact]
         public void Fish_Breeds_When_Reaching_BreedTime()
         {
-            var configuration = new WatorConfiguration { FishBreedTime = 2, FishInitialEnergy = 5 };
+            var configuration = new WatorConfiguration { FishBreedTime = 2, FishInitialAge = 5 };
             var field = new[,]
             {
                 {0, 0, 0},
