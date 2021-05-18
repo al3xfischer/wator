@@ -1,6 +1,4 @@
 ﻿using MPI;
-using Serilog;
-using Serilog.Sinks.SystemConsole.Themes;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -25,7 +23,6 @@ namespace wator.mpi
 
         private static void Main(string[] args)
         {
-            Log.Logger = new LoggerConfiguration().WriteTo.Console(theme: AnsiConsoleTheme.Code).CreateLogger();
             using (new Environment(ref args))
             {
                 var comm = Communicator.world;

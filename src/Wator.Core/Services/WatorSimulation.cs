@@ -50,12 +50,11 @@ namespace Wator.Core.Services
                     if (ignoredPositions.Contains(currentPosition)) continue;
                     if (ignoreInCurrentRow.Contains(currentPosition)) continue;
                     if (IsEmpty(currentPosition)) continue;
-                    
+
                     var newPosition = ContainsFish(currentPosition)
                         ? PerformFishChronon(currentPosition)
                         : PerformSharkChronon(currentPosition);
 
-                    ignoreInCurrentRow.Add(newPosition);
                     if (currentPosition == newPosition) continue;
 
                     if (newPosition.RowIndex > normalizedRowIndex) ignoreInNextRow.Add(newPosition);
