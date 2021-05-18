@@ -1,6 +1,10 @@
 ﻿using MPI;
+using Serilog;
+using Serilog.Sinks.SystemConsole.Themes;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using Wator.Core.Entities;
 using Wator.Core.Helpers;
 using Wator.Core.Services;
@@ -11,121 +15,63 @@ namespace wator.mpi
 {
     internal class Program
     {
-        public const int Rows = 10;
-        public const int Columns = 10;
+        public const int Rows = 10_000;
+        public const int Columns = 10_000;
 
-        public const int FishCount = 5;
-        public const int SharkCount = 5;
+        public const int FishCount = 100_000;
+        public const int SharkCount = 100_000;
+
+        public const int Iterations = 20;
 
         private static void Main(string[] args)
         {
-            var configuration = new WatorConfiguration();
-            var field = CreateField();
+            Log.Logger = new LoggerConfiguration().WriteTo.Console(theme: AnsiConsoleTheme.Code).CreateLogger();
             using (new Environment(ref args))
             {
-                RenderField(field);
                 var comm = Communicator.world;
-                Animal[][,] subFields = new Animal[comm.Size][,];
-                // Master splits field to equal sub fields.
-                if (IsMaster()) subFields = FieldHelper.Split(field, comm.Size);
+                var subfields = new Animal[comm.Size][,];
+                Animal[,] field = new Animal[0, 0];
+                var config = new WatorConfiguration();
+                //Console.WriteLine(comm.Rank);
+                if (IsMaster())
+                {
+                    (field, _) = CreateField();
+                }
 
-                // Distribute sub field to each process.
-                var subfield = comm.Scatter(subFields, 0);
+                var stopwatch = new Stopwatch();
+                for (var iteration = 0; iteration < Iterations; iteration++)
+                {
+                    Animal[][,] subFields = new Animal[comm.Size][,];
+                    if (IsMaster()) subFields = FieldHelper.Split(field, comm.Size);
+                    var subfield = comm.Scatter(subFields, 0);
+                    //Console.WriteLine("got sub");
+                    if (IsMaster()) stopwatch.Start();
+                    var subResult = ProcessIterion(config, subfield, comm);
+                    //Console.WriteLine("calculated sub");
+                    var results = comm.Gather(subResult, 0);
+                    //Console.WriteLine("gathered subs");
 
-                // Calculate non border fields
-                var simulation = new WatorSimulation(subfield, configuration);
-                var innerFrom = 1;
-                var innerTo = subfield.GetLength(0) - 2;
-                simulation.RunCycleInRows(innerFrom, innerTo);
-                var innerSubfield = FieldHelper.GetRows(subfield, innerFrom, innerTo);
+                    if (results is null) continue;
 
-                // last two rows are required
-                var lowerBorder = FieldHelper.GetRows(field, subfield.GetLength(0) - 2, subfield.GetLength(0) - 1);
-                var (lowerBorderFromUpperProcess, _) = comm.SendLowerReceiveUpper(lowerBorder, 0, 0);
+                    field = FieldHelper.Merge(results);
+                    if (IsMaster())
+                    {
+                        stopwatch.Stop();
+                        Console.WriteLine(stopwatch.ElapsedMilliseconds);
+                        stopwatch.Reset();
+                    }
 
-                var incluedLowerFromUpper = FieldHelper.MergeTwo(lowerBorderFromUpperProcess, subfield);
-                simulation.Field = incluedLowerFromUpper;
-                simulation.RunCycleInRows(2, 2);
-
-
-                // simulate upper border with new information
-
-                var upperBorder = FieldHelper.GetRows(incluedLowerFromUpper, 0, 2); // bottom of upper subfield
-                var (myUpdatedLowerBorder, _) = comm.SendUpperReceiveLower(upperBorder, 0, 0);
-
-                // remove last two rows and append the three from the lower process
-                //TODO: implement the methods to do so
-                var splitIndex = incluedLowerFromUpper.GetLength(0) - 2;
-                var removedLastTwo = FieldHelper.CutBefore(incluedLowerFromUpper, splitIndex)[0];
-                var includedUpperFromLower = FieldHelper.MergeTwo(removedLastTwo, myUpdatedLowerBorder);
-
-                var localLastRowIndex = includedUpperFromLower.GetLength(0) - 2;
-                simulation.Field = includedUpperFromLower;
-                simulation.RunCycleInRows(localLastRowIndex, localLastRowIndex);
-
-                var resultSubfield = FieldHelper.GetRows(includedUpperFromLower, 2, includedUpperFromLower.GetLength(0) - 2);
-
-                // Each process sends its updated subfield to the master.
-                // Only the master process has an initialized results array all other processes receive null.
-                var results = comm.Gather(resultSubfield, 0);
-
-                if (results is null) return;
-
-                var simulatedSubfields = FieldHelper.Merge(results);
-
-                RenderField(simulatedSubfields);
-
-                // Master handles gathered updated subfields.
-                // we may should return the simulatedSubfields to render then 
-                //return simulatedSubfields;
-
-                //if (IsMaster())
-                //{
-                //    foreach (var result in results)
-                //    {
-                //        Console.WriteLine(result);
-                //    }
-                //}
+                    //Console.WriteLine("merged subs");
+                    //Console.WriteLine(field);
+                    //RenderField(field);
+                    Console.WriteLine(iteration);
+                }
             }
-            //using (new Environment(ref args))
-            //{
-            //    var comm = Communicator.world;
+        }
 
-            //    int[] pseudoField = null;
-
-            //    // Master splits field to equal sub fields.
-            //    if(IsMaster()) pseudoField = Enumerable.Range(0, comm.Size).ToArray();
-
-            //    // Distribute sub field to each process.
-            //    var myPseudoSubfield = comm.Scatter(pseudoField, 0);
-
-            //    // Calculate non border fields
-
-            //    var myLowerBorder = $"lower border of {comm.Rank}";
-
-            //    var (lowerBorderFromUpperProcess, _) = comm.SendLowerReceiveUpper(myLowerBorder, 0, 0);
-            //    Console.WriteLine(lowerBorderFromUpperProcess);
-
-            //    var updatedLowerBorderFromUpperProcess = $"updated {lowerBorderFromUpperProcess}";
-            //    var (myUpdatedLowerBorder, _) = comm.SendUpperReceiveLower(updatedLowerBorderFromUpperProcess, 0, 0);
-            //    Console.WriteLine(myUpdatedLowerBorder);
-
-            //    // Each process updates the subfield (master also acts as a worker).
-            //    var myUpdatedPseudoSubfield = 2 * myPseudoSubfield;
-
-            //    // Each process sends its updated subfield to the master.
-            //    // Only the master process has an initialized results array all other processes receive null.
-            //    var results = comm.Gather(myUpdatedPseudoSubfield, 0);
-
-            //    // Master handles gathered updated subfields.
-            //    if (IsMaster())
-            //    {
-            //        foreach (var result in results)
-            //        {
-            //            Console.WriteLine(result);
-            //        }
-            //    }
-            //}
+        private static HashSet<Position> AddOffset(IEnumerable<Position> innerMoved, int offset)
+        {
+            return innerMoved.Select(element => element with { RowIndex = element.RowIndex + offset }).ToHashSet();
         }
 
         private static bool IsMaster()
@@ -133,30 +79,27 @@ namespace wator.mpi
             return Communicator.world.Rank == 0;
         }
 
-        public static Animal[,] CreateField()
+        public static (Animal[,], WatorConfiguration) CreateField()
         {
-            return new FieldBuilder()
-                .WithConfiguration(new WatorConfiguration { FishBreedTime = 1, Seed = 42 })
+            var configuration = new WatorConfiguration { FishBreedTime = 1, Seed = 999 };
+            var field = new FieldBuilder()
+                .WithConfiguration(configuration)
                 .WithSeed(101)
                 .WithDimensions(Rows, Columns)
                 .WithFishCount(FishCount)
                 .WithSharkCount(SharkCount)
                 .Build();
+
+            return (field, configuration);
         }
 
-        public static IEnumerable<Animal> ToRow(Animal[,] subfield)
-        {
-            if (subfield.GetLength(0) != 1)
-            {
-                throw new ArgumentException("No able to tranform an (2-n)D array mith more than one row.");
-            }
-
-            for (var i = 0; i < subfield.GetLength(1); i++) yield return subfield[0, i];
-        }
         static void RenderField(Animal[,] field)
         {
+            Console.Clear();
+
             for (var i = 0; i < field.GetLength(0); i++)
             {
+                Console.Write($"{i:000}: ");
                 for (var j = 0; j < field.GetLength(1); j++)
                 {
                     var cell = field[i, j];
@@ -201,5 +144,102 @@ namespace wator.mpi
             Console.Write("0");
             Console.ResetColor();
         }
+
+        private static Animal[,] ProcessIterion(WatorConfiguration configuration, Animal[,] field, Intracommunicator comm)
+        {
+            //var args = new string[0];
+            //using (new Environment(ref args))
+            //{
+            //RenderField(field);
+            //Animal[][,] subFields = new Animal[comm.Size][,];
+            // Master splits field to equal sub fields.
+            //if (IsMaster()) subFields = FieldHelper.Split(field, comm.Size);
+
+            // Distribute sub field to each process.
+            //var subfield = comm.Scatter(subFields, 0);
+
+            // Calculate non border fields
+            var simulation = new WatorSimulation(field, configuration);
+            var innerFrom = 1;
+            var innerTo = field.GetLength(0) - 2;
+            var moved = simulation.RunCycleInRows(innerFrom, innerTo);
+            //RenderField(subfield);
+
+            // last two rows are required
+            var lowerBorder = FieldHelper.GetRows(field, field.GetLength(0) - 2, field.GetLength(0) - 1);
+            var (lowerBorderFromUpperProcess, _) = comm.SendLowerReceiveUpper(lowerBorder, 0, 0);
+            var movedOffset = AddOffset(moved, 2);
+            var incluedLowerFromUpper = FieldHelper.MergeTwo(lowerBorderFromUpperProcess, field);
+            //RenderField(incluedLowerFromUpper);
+            simulation.Field = incluedLowerFromUpper;
+            var topBorderMoved = simulation.RunCycleInRows(2, 2, movedOffset);
+            //RenderField(incluedLowerFromUpper);
+
+
+            // simulate upper border with new information
+            var upperBorder = FieldHelper.GetRows(incluedLowerFromUpper, 0, 2); // bottom of upper subfield
+            var ((myUpdatedLowerBorder, lowerMoved), _) = comm.SendUpperReceiveLower((upperBorder, topBorderMoved), 0, 0);
+            var lowerMovedOffset = AddOffset(lowerMoved, incluedLowerFromUpper.GetLength(0) - 2);
+
+            // remove last two rows and append the three from the lower process
+            var splitIndex = incluedLowerFromUpper.GetLength(0) - 2;
+            var removedLastTwo = FieldHelper.CutBefore(incluedLowerFromUpper, splitIndex)[0];
+            var includedUpperFromLower = FieldHelper.MergeTwo(removedLastTwo, myUpdatedLowerBorder);
+            //RenderField(includedUpperFromLower);
+
+            var localLastRowIndex = includedUpperFromLower.GetLength(0) - 2;
+            //RenderField(includedUpperFromLower);
+            simulation.Field = includedUpperFromLower;
+            movedOffset.UnionWith(lowerMovedOffset);
+            simulation.RunCycleInRows(localLastRowIndex, localLastRowIndex, movedOffset);
+            //RenderField(includedUpperFromLower);
+
+            var resultSubfield = FieldHelper.GetRows(includedUpperFromLower, 2, includedUpperFromLower.GetLength(0) - 2);
+
+            return resultSubfield;
+
+            // Each process sends its updated subfield to the master.
+            // Only the master process has an initialized results array all other processes receive null.
+            //var results = comm.Gather(resultSubfield, 0);
+
+            //if (results is null) return null;
+
+            //return FieldHelper.Merge(results);
+            //}
+        }
+
+        public static long MeasureRuntime(Action action)
+        {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            action();
+            stopwatch.Stop();
+            return stopwatch.ElapsedMilliseconds;
+        }
+
+        public static void ProcessIterations(WatorConfiguration configuration, Animal[,] field, Intracommunicator comm)
+        {
+            DrawProgressInPercent(0, Iterations);
+
+            for (var i = 0; i < Iterations; i++)
+            {
+                //ProcessIteration(simulation, splitBoundaries);
+                var iteratedField = ProcessIterion(configuration, field, comm);
+                DrawProgressInPercent(i + 1, Iterations);
+            }
+        }
+
+        public static void DrawProgressInPercent(int currentItem, int totalAmount)
+        {
+            Console.Clear();
+            var left = Console.CursorLeft;
+            var top = Console.CursorTop;
+            var progressInPercent = (double)currentItem / totalAmount;
+            Console.WriteLine($"{Math.Round(progressInPercent * 100, 2)}%");
+            Console.SetCursorPosition(left, top);
+        }
+
+
+
     }
 }

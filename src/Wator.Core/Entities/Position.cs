@@ -1,5 +1,8 @@
-﻿namespace Wator.Core.Entities
+﻿using System;
+
+namespace Wator.Core.Entities
 {
+    [Serializable]
     public record Position
     {
         public Position(int rowIndex, int columnIndex)
@@ -8,7 +11,7 @@
             ColumnIndex = columnIndex;
         }
 
-        public int RowIndex { get; }
-        public int ColumnIndex { get; }
+        public int RowIndex { get; init; }
+        public int ColumnIndex { get; init; }
     }
 }

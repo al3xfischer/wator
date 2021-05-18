@@ -50,6 +50,7 @@ namespace Wator.Core.Services
                         ? PerformFishChronon(currentPosition)
                         : PerformSharkChronon(currentPosition);
 
+                    ignoreInCurrentRow.Add(newPosition);
                     if (currentPosition == newPosition) continue;
                     if (newPosition.RowIndex > rowIndex) ignoreInNextRow.Add(newPosition);
                     if (newPosition.RowIndex < fromRow || newPosition.RowIndex > toRow)
