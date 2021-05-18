@@ -13,18 +13,21 @@ namespace Wator.Multithreading
     public class Program
     {
         public const int FishCount = 100_000;
-        public const int SharkCount = 100_000;
+        public const int SharkCount = 50_000;
 
         public const int Rows = 10_000;
         public const int Columns = 10_000;
+        public static readonly WatorConfiguration Config = new WatorConfiguration();
 
-        public const int Iterations = 20;
+        public const int Iterations = 750;
 
         public const int ThreadCount = 32;
 
         public static void Main(string[] args)
         {
-            var simulation = new WatorSimulation(CreateField());
+            var simulation = new WatorSimulation(CreateField(), Config);
+            //Console.SetWindowSize(simulation.Field.GetLength(1) + 1, simulation.Field.GetLength(0) + 1);
+
             var splitBoundaries = FieldHelper.GetSplitBoundaries(simulation.Field, ThreadCount);
 
             var runtimeInMs = MeasureRuntime(() => ProcessIterations(simulation, splitBoundaries));
@@ -50,7 +53,9 @@ namespace Wator.Multithreading
 
             for (var i = 0; i < Iterations; i++)
             {
+                //RenderField(simulation.Field);
                 ProcessIteration(simulation, splitBoundaries);
+                //Thread.Sleep(750);
                 DrawProgressInPercent(i + 1, Iterations);
             }
         }
@@ -66,13 +71,15 @@ namespace Wator.Multithreading
                 ignoreInBorderProcessing[i] = simulation.RunCycleInRows(innerTopBorder, outerTopBorder);
             });
 
-            for (var i = 0; i < splitBoundaries.Length; i++)
+            var ignoreAcc = ignoreInBorderProcessing.SelectMany(_ => _).ToHashSet();
+
+            Parallel.For(0, splitBoundaries.Length, i =>
             {
-                var (fromRow, toRow) = splitBoundaries[i];
-                var ignorePositions = ignoreInBorderProcessing[i];
-                simulation.RunCycleInRows(fromRow, fromRow, ignorePositions);
-                simulation.RunCycleInRows(toRow, toRow, ignorePositions);
-            }
+                var (_, toRow) = splitBoundaries[i];
+                var (nFromRow, _) = splitBoundaries[(i + 1) % splitBoundaries.Length];
+
+                simulation.RunCycleInRows(toRow, nFromRow, ignoreAcc);
+            });
         }
 
         public static Animal[,] CreateField()
