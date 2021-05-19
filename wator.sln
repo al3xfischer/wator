@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wator.Core.Tests", "test\Wa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wator.Multithreading", "src\Wator.Multithreading\Wator.Multithreading\Wator.Multithreading.csproj", "{CA6DE4A7-07DC-4C78-8E26-2592B2E43163}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wator.Rendering", "src\Wator.Rendering\Wator.Rendering.csproj", "{E7DF5A4D-A65E-47D0-824F-59D4EC0BC201}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +45,10 @@ Global
 		{CA6DE4A7-07DC-4C78-8E26-2592B2E43163}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA6DE4A7-07DC-4C78-8E26-2592B2E43163}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA6DE4A7-07DC-4C78-8E26-2592B2E43163}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7DF5A4D-A65E-47D0-824F-59D4EC0BC201}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7DF5A4D-A65E-47D0-824F-59D4EC0BC201}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7DF5A4D-A65E-47D0-824F-59D4EC0BC201}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7DF5A4D-A65E-47D0-824F-59D4EC0BC201}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -53,6 +59,7 @@ Global
 		{D1639FC0-472D-4D23-AAEC-613F2EBE3239} = {B722BF73-7CE5-4608-9487-64E9077150FA}
 		{21A2B71C-DA60-4C7A-8364-1E86B7B2180B} = {DB88713F-1950-4F1A-AE15-290B544126A7}
 		{CA6DE4A7-07DC-4C78-8E26-2592B2E43163} = {B722BF73-7CE5-4608-9487-64E9077150FA}
+		{E7DF5A4D-A65E-47D0-824F-59D4EC0BC201} = {B722BF73-7CE5-4608-9487-64E9077150FA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {17CFAE18-E650-49AA-90C6-139D32505EB0}

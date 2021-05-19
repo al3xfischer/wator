@@ -1,32 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Wator.Core.Entities;
 using Wator.Core.Helpers;
 using Wator.Core.Services;
+using Wator.Rendering;
 
 namespace Wator.Multithreading
 {
     public class Program
     {
-        public const int FishCount = 100;
-        public const int SharkCount = 50;
+        public const string OutputDir = @".\images";
 
-        public const int Rows = 20;
-        public const int Columns = 40;
+        public const int FishCount = 100_000;
+        public const int SharkCount = 50_000;
+
+        public const int Rows = 1000;
+        public const int Columns = 1000;
         public static readonly WatorConfiguration Config = new WatorConfiguration();
 
         public const int Iterations = 750;
 
-        public const int ThreadCount = 4;
+        public const int ThreadCount = 32;
 
         public static void Main(string[] args)
         {
+            if (!Directory.Exists(OutputDir)) Directory.CreateDirectory(OutputDir);
+
             var simulation = new WatorSimulation(CreateField(), Config);
-            Console.SetWindowSize(simulation.Field.GetLength(1) + 1, simulation.Field.GetLength(0) + 1);
 
             var splitBoundaries = FieldHelper.GetSplitBoundaries(simulation.Field, ThreadCount);
 
@@ -49,14 +54,19 @@ namespace Wator.Multithreading
 
         public static void ProcessIterations(WatorSimulation simulation, (int, int)[] splitBoundaries)
         {
-            //DrawProgressInPercent(0, Iterations);
+            DrawProgressInPercent(0, Iterations);
+
+            var renderer = new BitmapRenderer();
 
             for (var i = 0; i < Iterations; i++)
             {
-                RenderField(simulation.Field);
+                ThreadPool.QueueUserWorkItem((_) =>
+                {
+                    renderer.Render(@$"{OutputDir}\iteration_{i}.png", simulation.Field);
+                });
+
                 ProcessIteration(simulation, splitBoundaries);
-                Thread.Sleep(750);
-                //DrawProgressInPercent(i + 1, Iterations);
+                DrawProgressInPercent(i + 1, Iterations);
             }
         }
 
