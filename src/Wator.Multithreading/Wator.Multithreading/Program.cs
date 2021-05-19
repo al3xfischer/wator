@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Wator.Core.Entities;
 using Wator.Core.Helpers;
@@ -11,21 +12,21 @@ namespace Wator.Multithreading
 {
     public class Program
     {
-        public const int FishCount = 100_000;
-        public const int SharkCount = 50_000;
+        public const int FishCount = 200;
+        public const int SharkCount = 30;
 
-        public const int Rows = 10_000;
-        public const int Columns = 10_000;
+        public const int Rows = 20;
+        public const int Columns = 40;
         public static readonly WatorConfiguration Config = new WatorConfiguration();
 
         public const int Iterations = 750;
 
-        public const int ThreadCount = 32;
+        public const int ThreadCount = 4;
 
         public static void Main(string[] args)
         {
             var simulation = new WatorSimulation(CreateField(), Config);
-            //Console.SetWindowSize(simulation.Field.GetLength(1) + 1, simulation.Field.GetLength(0) + 1);
+            Console.SetWindowSize(simulation.Field.GetLength(1) + 1, simulation.Field.GetLength(0) + 1);
 
             var splitBoundaries = FieldHelper.GetSplitBoundaries(simulation.Field, ThreadCount);
 
@@ -48,14 +49,14 @@ namespace Wator.Multithreading
 
         public static void ProcessIterations(WatorSimulation simulation, (int, int)[] splitBoundaries)
         {
-            DrawProgressInPercent(0, Iterations);
+            //DrawProgressInPercent(0, Iterations);
 
             for (var i = 0; i < Iterations; i++)
             {
-                //RenderField(simulation.Field);
+                RenderField(simulation.Field);
                 ProcessIteration(simulation, splitBoundaries);
-                //Thread.Sleep(750);
-                DrawProgressInPercent(i + 1, Iterations);
+                Thread.Sleep(750);
+                //DrawProgressInPercent(i + 1, Iterations);
             }
         }
 
@@ -100,6 +101,54 @@ namespace Wator.Multithreading
             var progressInPercent = (double)currentItem / totalAmount;
             Console.WriteLine($"{Math.Round(progressInPercent * 100, 2)}%");
             Console.SetCursorPosition(left, top);
+        }
+        static void RenderField(int[,] field)
+        {
+            for (var i = 0; i < field.GetLength(0); i++)
+            {
+                for (var j = 0; j < field.GetLength(1); j++)
+                {
+                    var cell = field[i, j];
+
+                    switch (cell)
+                    {
+                        case < 0:
+                            RenderShark();
+                            break;
+                        case > 0:
+                            RenderFish();
+                            break;
+                        default:
+                            RenderWater();
+                            break;
+                    }
+                }
+
+                Console.WriteLine();
+            }
+
+            Console.SetCursorPosition(0, 0);
+        }
+
+        static void RenderFish()
+        {
+            Console.BackgroundColor = ConsoleColor.DarkGreen;
+            Console.Write("F");
+            Console.ResetColor();
+        }
+
+        static void RenderShark()
+        {
+            Console.BackgroundColor = ConsoleColor.DarkRed;
+            Console.Write("S");
+            Console.ResetColor();
+        }
+
+        static void RenderWater()
+        {
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.Write("0");
+            Console.ResetColor();
         }
     }
 }

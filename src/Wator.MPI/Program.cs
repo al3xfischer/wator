@@ -61,7 +61,7 @@ namespace wator.mpi
 
                     //Console.WriteLine("merged subs");
                     //Console.WriteLine(field);
-                    //RenderField(field);
+                    RenderField(field);
                     Console.WriteLine(iteration);
                 }
             }

@@ -42,12 +42,14 @@ namespace Wator.Core.Services
                 var normalizedRowIndex = rowIndex % Field.GetLength(0);
                 //var ignoreInCurrentRow = ignoreInNextRow;
                 //ignoreInNextRow = new HashSet<Position>();
+                var moved = new HashSet<Position>();
 
                 for (var colIndex = 0; colIndex < Field.GetLength(1); colIndex++)
                 {
                     var currentPosition = new Position(normalizedRowIndex, colIndex);
 
                     if (ignoredPositions.Contains(currentPosition)) continue;
+                    if (moved.Contains(currentPosition)) continue;
                     //if (ignoreInCurrentRow.Contains(currentPosition)) continue;
                     if (IsEmpty(currentPosition)) continue;
 
@@ -56,7 +58,7 @@ namespace Wator.Core.Services
                         : PerformSharkChronon(currentPosition);
 
                     if (currentPosition == newPosition) continue;
-                    ignoredPositions.Add(newPosition);
+                    moved.Add(newPosition);
 
                     //if (newPosition.RowIndex > normalizedRowIndex) ignoreInNextRow.Add(newPosition);
                     //if (newPosition.ColumnIndex > colIndex) ignoreInCurrentRow.Add(newPosition);
@@ -123,16 +125,16 @@ namespace Wator.Core.Services
                 throw new InvalidOperationException("Cannot perform action for non-fish cells.");
 
             var newPosition = position;
-            var currentEnergy = GetAnimalAtPosition(position);
-            var updatedEnergy = currentEnergy + 1;
+            var currentAge = GetAnimalAtPosition(position);
+            var updatedAge = currentAge + 1;
 
             if (CanMoveToEmptyField(position))
             {
                 newPosition = MoveToEmptyField(position);
-                if (currentEnergy % Configuration.FishBreedTime == 0) BreedFishToPosition(position);
+                if (currentAge % Configuration.FishBreedTime == 0) BreedFishToPosition(position);
             }
 
-            SetAnimalAtPosition(newPosition, updatedEnergy);
+            SetAnimalAtPosition(newPosition, updatedAge);
 
             return newPosition;
         }
