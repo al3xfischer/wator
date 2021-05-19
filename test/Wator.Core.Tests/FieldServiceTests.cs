@@ -186,7 +186,7 @@ namespace Wator.Core.Tests
         [Fact]
         public void Shark_Hits_Zero_Energy_And_Dies()
         {
-            var configuration = new WatorConfiguration { SharkBreedTime = 10 };
+            var configuration = new WatorConfiguration { SharkBreedThreshold = 10 };
             var field = new[,]
             {
                 {0, 0, -2},
@@ -204,7 +204,7 @@ namespace Wator.Core.Tests
         [Fact]
         public void Shark_Breeds_When_Reaching_BreedTime()
         {
-            var configuration = new WatorConfiguration { SharkBreedTime = 2 };
+            var configuration = new WatorConfiguration { SharkBreedThreshold = 2 };
             var field = new[,]
             {
                 {0, 0, 0},

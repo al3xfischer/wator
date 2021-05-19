@@ -12,8 +12,8 @@ namespace Wator.Multithreading
 {
     public class Program
     {
-        public const int FishCount = 200;
-        public const int SharkCount = 30;
+        public const int FishCount = 100;
+        public const int SharkCount = 50;
 
         public const int Rows = 20;
         public const int Columns = 40;

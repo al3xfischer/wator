@@ -32,17 +32,14 @@ namespace Wator.Core.Services
         {
             ignoredPositions ??= new HashSet<Position>();
 
-            //var ignoreInNextRow = new HashSet<Position>();
             var outOfBorderPositions = new HashSet<Position>();
+            var moved = new HashSet<Position>();
 
             (fromRow, toRow) = Normalize(fromRow, toRow);
 
             for (var rowIndex = fromRow; rowIndex <= toRow; rowIndex++)
             {
                 var normalizedRowIndex = rowIndex % Field.GetLength(0);
-                //var ignoreInCurrentRow = ignoreInNextRow;
-                //ignoreInNextRow = new HashSet<Position>();
-                var moved = new HashSet<Position>();
 
                 for (var colIndex = 0; colIndex < Field.GetLength(1); colIndex++)
                 {
@@ -50,7 +47,6 @@ namespace Wator.Core.Services
 
                     if (ignoredPositions.Contains(currentPosition)) continue;
                     if (moved.Contains(currentPosition)) continue;
-                    //if (ignoreInCurrentRow.Contains(currentPosition)) continue;
                     if (IsEmpty(currentPosition)) continue;
 
                     var newPosition = ContainsFish(currentPosition)
@@ -60,8 +56,6 @@ namespace Wator.Core.Services
                     if (currentPosition == newPosition) continue;
                     moved.Add(newPosition);
 
-                    //if (newPosition.RowIndex > normalizedRowIndex) ignoreInNextRow.Add(newPosition);
-                    //if (newPosition.ColumnIndex > colIndex) ignoreInCurrentRow.Add(newPosition);
                     if (newPosition.RowIndex < fromRow || newPosition.RowIndex > toRow)
                         outOfBorderPositions.Add(newPosition);
                 }
@@ -102,19 +96,16 @@ namespace Wator.Core.Services
             var newPosition = position;
             var currentEnergy = GetAnimalAtPosition(position);
 
-            if (currentEnergy == 0)
-            {
-                SetAnimalAtPosition(position, 0);
-                return newPosition;
-            }
-
             if (CanEatPreyOrMoveToEmptyField(position))
             {
                 newPosition = EatPreyOrMoveToEmptyField(position);
-                if (currentEnergy % Configuration.SharkBreedTime == 0) BreedSharkToPosition(position);
+                if (-currentEnergy >= Configuration.SharkBreedThreshold)
+                {
+                    var energyAfterBreeding = currentEnergy / 2;
+                    BreedSharkToPosition(position, currentEnergy - energyAfterBreeding);
+                    SetAnimalAtPosition(newPosition, energyAfterBreeding);
+                }
             }
-
-            SetAnimalAtPosition(newPosition, GetAnimalAtPosition(newPosition) + 1);
 
             return newPosition;
         }
@@ -126,15 +117,12 @@ namespace Wator.Core.Services
 
             var newPosition = position;
             var currentAge = GetAnimalAtPosition(position);
-            var updatedAge = currentAge + 1;
 
             if (CanMoveToEmptyField(position))
             {
                 newPosition = MoveToEmptyField(position);
                 if (currentAge % Configuration.FishBreedTime == 0) BreedFishToPosition(position);
             }
-
-            SetAnimalAtPosition(newPosition, updatedAge);
 
             return newPosition;
         }
@@ -158,9 +146,8 @@ namespace Wator.Core.Services
         private void MoveToField(Position oldPosition, Position newPosition)
         {
             var oldPositionAnimal = GetAnimalAtPosition(oldPosition);
-            var newPositionAnimal = GetAnimalAtPosition(newPosition);
 
-            SetAnimalAtPosition(newPosition, oldPositionAnimal - newPositionAnimal);
+            SetAnimalAtPosition(newPosition, oldPositionAnimal + 1);
             SetAnimalAtPosition(oldPosition, 0);
         }
 
@@ -169,6 +156,9 @@ namespace Wator.Core.Services
             if (!CanEatPrey(position)) throw new InvalidOperationException("Cannot eat prey.");
 
             var preyPosition = ChoosePreyInSurroundingField(position);
+            var currentEnergy = GetAnimalAtPosition(position);
+            SetAnimalAtPosition(position, currentEnergy - Configuration.FishWorthEnergy);
+
             MoveToField(position, preyPosition);
             return preyPosition;
         }
@@ -198,9 +188,9 @@ namespace Wator.Core.Services
             return GetEmptySurroundingFields(position).Any();
         }
 
-        private void BreedSharkToPosition(Position position)
+        private void BreedSharkToPosition(Position position, int energy)
         {
-            SetAnimalAtPosition(position, -Configuration.SharkInitialEnergy);
+            SetAnimalAtPosition(position, energy);
         }
 
         private void BreedFishToPosition(Position position)
