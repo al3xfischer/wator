@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Wator.Core.Entities;
 using Wator.Core.Helpers;
@@ -15,28 +14,30 @@ namespace Wator.Multithreading
     public class Program
     {
         public const string OutputDir = @".\images";
+        public const bool DoRender = false;
 
-        public const int FishCount = 100_000;
-        public const int SharkCount = 50_000;
+        public const int FishCount = 1000_000;
+        public const int SharkCount = 500_000;
 
-        public const int Rows = 1000;
-        public const int Columns = 1000;
-        public static readonly WatorConfiguration Config = new WatorConfiguration();
+        public const int Rows = 10_000;
+        public const int Columns = 10_000;
 
-        public const int Iterations = 750;
+        public const int Iterations = 20;
 
-        public const int ThreadCount = 32;
+        public static readonly WatorConfiguration Config = new();
 
         public static void Main(string[] args)
         {
             if (!Directory.Exists(OutputDir)) Directory.CreateDirectory(OutputDir);
 
+            var threadCount = Convert.ToInt32(args[0]);
             var simulation = new WatorSimulation(CreateField(), Config);
-
-            var splitBoundaries = FieldHelper.GetSplitBoundaries(simulation.Field, ThreadCount);
+            var splitBoundaries = FieldHelper.GetSplitBoundaries(simulation.Field, threadCount);
 
             var runtimeInMs = MeasureRuntime(() => ProcessIterations(simulation, splitBoundaries));
             var averageRuntimeInMs = runtimeInMs / Iterations;
+
+            Console.WriteLine($"Ran with {threadCount} threads.");
             Console.WriteLine($"Running {Iterations} iterations took {runtimeInMs}ms.");
             Console.WriteLine($"Each iteration took {averageRuntimeInMs}ms on average.");
             Console.WriteLine("Press any key to quit.");
@@ -60,10 +61,7 @@ namespace Wator.Multithreading
 
             for (var i = 0; i < Iterations; i++)
             {
-                ThreadPool.QueueUserWorkItem((_) =>
-                {
-                    renderer.Render(@$"{OutputDir}\iteration_{i}.png", simulation.Field);
-                });
+                if (DoRender) renderer.Render(@$"{OutputDir}\iteration_{i}.png", simulation.Field);
 
                 ProcessIteration(simulation, splitBoundaries);
                 DrawProgressInPercent(i + 1, Iterations);
@@ -95,7 +93,7 @@ namespace Wator.Multithreading
         public static int[,] CreateField()
         {
             return new FieldBuilder()
-                .WithConfiguration(new WatorConfiguration { FishBreedTime = 1, Seed = 42 })
+                .WithConfiguration(new WatorConfiguration {FishBreedTime = 1, Seed = 42})
                 .WithSeed(101)
                 .WithDimensions(Rows, Columns)
                 .WithFishCount(FishCount)
@@ -108,11 +106,12 @@ namespace Wator.Multithreading
             Console.Clear();
             var left = Console.CursorLeft;
             var top = Console.CursorTop;
-            var progressInPercent = (double)currentItem / totalAmount;
+            var progressInPercent = (double) currentItem / totalAmount;
             Console.WriteLine($"{Math.Round(progressInPercent * 100, 2)}%");
             Console.SetCursorPosition(left, top);
         }
-        static void RenderField(int[,] field)
+
+        private static void RenderField(int[,] field)
         {
             for (var i = 0; i < field.GetLength(0); i++)
             {
@@ -140,21 +139,21 @@ namespace Wator.Multithreading
             Console.SetCursorPosition(0, 0);
         }
 
-        static void RenderFish()
+        private static void RenderFish()
         {
             Console.BackgroundColor = ConsoleColor.DarkGreen;
             Console.Write("F");
             Console.ResetColor();
         }
 
-        static void RenderShark()
+        private static void RenderShark()
         {
             Console.BackgroundColor = ConsoleColor.DarkRed;
             Console.Write("S");
             Console.ResetColor();
         }
 
-        static void RenderWater()
+        private static void RenderWater()
         {
             Console.BackgroundColor = ConsoleColor.Black;
             Console.Write("0");
