@@ -166,18 +166,13 @@ namespace Wator.Core.Tests
             };
             var simulation = new WatorSimulation(field);
 
-            var actualChanges = simulation.RunCycle();
-
-            var expectedChanges = new List<Position>
-            {
-                new(2, 2)
-            };
+            simulation.RunCycle();
 
             var expectedField = new[,]
             {
+                {0, 0, -15},
                 {0, 0, 0},
-                {0, 0, 0},
-                {0, 0, -49}
+                {0, 0, -15}
             };
 
             Assert.Equal(expectedField, field);
@@ -209,7 +204,7 @@ namespace Wator.Core.Tests
             {
                 {0, 0, 0},
                 {0, 0, 0},
-                {0, 0, -2}
+                {0, 0, -3}
             };
 
             var simulation = new WatorSimulation(field, configuration);

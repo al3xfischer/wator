@@ -7,6 +7,13 @@ namespace Wator.Core.Helpers
 {
     public class FieldHelper
     {
+        /// <summary>
+        /// Gets the surrounding fields.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="position">The position.</param>
+        /// <returns></returns>
         public static IEnumerable<Position> GetSurroundingFields<T>(T[,] field, Position position)
         {
             var top = new Position((position.RowIndex - 1 + field.GetLength(0)) % field.GetLength(0),
@@ -19,6 +26,21 @@ namespace Wator.Core.Helpers
             return new List<Position> { top, right, bottom, left };
         }
 
+        /// <summary>
+        /// Gets the rows.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="from">From.</param>
+        /// <param name="to">To.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// from - Out of source index.
+        /// or
+        /// to - Out of source index.
+        /// or
+        /// from - Must be lower or equal to to.
+        /// </exception>
         public static T[,] GetRows<T>(T[,] source, int from, int to)
         {
             if (from >= source.GetLength(0))
@@ -38,6 +60,13 @@ namespace Wator.Core.Helpers
             return rows;
         }
 
+        /// <summary>
+        /// Gets the split boundaries.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="partCount">The part count.</param>
+        /// <returns></returns>
         public static (int FromRow, int ToRow)[] GetSplitBoundaries<T>(T[,] source, int partCount)
         {
             var rowCount = source.GetLength(0);
@@ -57,6 +86,13 @@ namespace Wator.Core.Helpers
             return result;
         }
 
+        /// <summary>
+        /// Splits the specified source.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="partCount">The part count.</param>
+        /// <returns></returns>
         public static T[][,] Split<T>(T[,] source, int partCount)
         {
             return GetSplitBoundaries(source, partCount)
@@ -77,11 +113,24 @@ namespace Wator.Core.Helpers
             return result;
         }
 
+        /// <summary>
+        /// Merges the specified parts.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="parts">The parts.</param>
+        /// <returns></returns>
         public static T[,] Merge<T>(T[][,] parts)
         {
             return parts.Aggregate(MergeTwo);
         }
 
+        /// <summary>
+        /// Cuts the before.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="index">The index.</param>
+        /// <returns></returns>
         public static T[][,] CutBefore<T>(T[,] source, int index)
         {
             var lastIndex = source.GetLength(0) - 1;

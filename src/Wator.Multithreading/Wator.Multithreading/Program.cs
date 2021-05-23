@@ -26,6 +26,11 @@ namespace Wator.Multithreading
 
         public static readonly WatorConfiguration Config = new();
 
+        /// <summary>
+        /// Mains the specified arguments.
+        /// </summary>
+        /// <param name="args">The arguments.</param>
+        /// <returns></returns>
         public static void Main(string[] args)
         {
             if (!Directory.Exists(OutputDir)) Directory.CreateDirectory(OutputDir);
@@ -44,6 +49,11 @@ namespace Wator.Multithreading
             Console.ReadKey(false);
         }
 
+        /// <summary>
+        /// Measures the runtime.
+        /// </summary>
+        /// <param name="action">The action.</param>
+        /// <returns></returns>
         public static long MeasureRuntime(Action action)
         {
             var stopwatch = new Stopwatch();
@@ -53,6 +63,12 @@ namespace Wator.Multithreading
             return stopwatch.ElapsedMilliseconds;
         }
 
+        /// <summary>
+        /// Processes the iterations.
+        /// </summary>
+        /// <param name="simulation">The simulation.</param>
+        /// <param name="splitBoundaries">The split boundaries.</param>
+        /// <returns></returns>
         public static void ProcessIterations(WatorSimulation simulation, (int, int)[] splitBoundaries)
         {
             DrawProgressInPercent(0, Iterations);
@@ -68,6 +84,12 @@ namespace Wator.Multithreading
             }
         }
 
+        /// <summary>
+        /// Processes the iteration.
+        /// </summary>
+        /// <param name="simulation">The simulation.</param>
+        /// <param name="splitBoundaries">The split boundaries.</param>
+        /// <returns></returns>
         public static void ProcessIteration(WatorSimulation simulation, (int, int)[] splitBoundaries)
         {
             var ignoreInBorderProcessing = new HashSet<Position>[splitBoundaries.Length];
@@ -90,10 +112,14 @@ namespace Wator.Multithreading
             });
         }
 
+        /// <summary>
+        /// Creates the field.
+        /// </summary>
+        /// <returns></returns>
         public static int[,] CreateField()
         {
             return new FieldBuilder()
-                .WithConfiguration(new WatorConfiguration {FishBreedTime = 1, Seed = 42})
+                .WithConfiguration(new WatorConfiguration { FishBreedTime = 1, Seed = 42 })
                 .WithSeed(101)
                 .WithDimensions(Rows, Columns)
                 .WithFishCount(FishCount)
@@ -101,12 +127,18 @@ namespace Wator.Multithreading
                 .Build();
         }
 
+        /// <summary>
+        /// Draws the progress in percent.
+        /// </summary>
+        /// <param name="currentItem">The current item.</param>
+        /// <param name="totalAmount">The total amount.</param>
+        /// <returns></returns>
         public static void DrawProgressInPercent(int currentItem, int totalAmount)
         {
             Console.Clear();
             var left = Console.CursorLeft;
             var top = Console.CursorTop;
-            var progressInPercent = (double) currentItem / totalAmount;
+            var progressInPercent = (double)currentItem / totalAmount;
             Console.WriteLine($"{Math.Round(progressInPercent * 100, 2)}%");
             Console.SetCursorPosition(left, top);
         }

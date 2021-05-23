@@ -10,6 +10,12 @@ namespace Wator.Core.Services
     {
         private readonly Random _random;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WatorSimulation"/> class.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="configuration">The configuration.</param>
+        /// <exception cref="ArgumentNullException">field</exception>
         public WatorSimulation(int[,] field, WatorConfiguration configuration = null)
         {
             Field = field ?? throw new ArgumentNullException(nameof(field));
@@ -23,11 +29,22 @@ namespace Wator.Core.Services
         public int FishCount => Field.Cast<int>().Count(a => a > 0);
         public int SharkCount => Field.Cast<int>().Count(a => a < 0);
 
+        /// <summary>
+        /// Runs the cycle.
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<Position> RunCycle()
         {
             return RunCycleInRows(0, Field.GetLength(0) - 1);
         }
 
+        /// <summary>
+        /// Runs the cycle in rows.
+        /// </summary>
+        /// <param name="fromRow">From row.</param>
+        /// <param name="toRow">To row.</param>
+        /// <param name="ignoredPositions">The ignored positions.</param>
+        /// <returns></returns>
         public HashSet<Position> RunCycleInRows(int fromRow, int toRow, HashSet<Position> ignoredPositions = null)
         {
             ignoredPositions ??= new HashSet<Position>();

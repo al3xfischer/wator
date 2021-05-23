@@ -5,6 +5,11 @@ namespace Wator.Rendering
 {
     public class BitmapRenderer
     {
+        /// <summary>
+        /// Renders the specified file.
+        /// </summary>
+        /// <param name="file">The file.</param>
+        /// <param name="field">The field.</param>
         public void Render(string file, int[,] field)
         {
             var width = field.GetLength(1);
@@ -12,11 +17,11 @@ namespace Wator.Rendering
             var bitmap = new Bitmap(width, height);
 
             for (var row = 0; row < height; row++)
-            for (var col = 0; col < width; col++)
-            {
-                var cell = field[row, col];
-                bitmap.SetPixel(col, row, DecideColor(cell));
-            }
+                for (var col = 0; col < width; col++)
+                {
+                    var cell = field[row, col];
+                    bitmap.SetPixel(col, row, DecideColor(cell));
+                }
 
             WriteToFile(file, bitmap);
         }

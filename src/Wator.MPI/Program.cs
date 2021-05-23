@@ -75,6 +75,10 @@ namespace wator.mpi
             return Communicator.world.Rank == 0;
         }
 
+        /// <summary>
+        /// Creates the field.
+        /// </summary>
+        /// <returns></returns>
         public static (int[,], WatorConfiguration) CreateField()
         {
             var configuration = new WatorConfiguration();
@@ -203,6 +207,11 @@ namespace wator.mpi
             //}
         }
 
+        /// <summary>
+        /// Measures the runtime.
+        /// </summary>
+        /// <param name="action">The action.</param>
+        /// <returns></returns>
         public static long MeasureRuntime(Action action)
         {
             var stopwatch = new Stopwatch();
@@ -212,6 +221,13 @@ namespace wator.mpi
             return stopwatch.ElapsedMilliseconds;
         }
 
+        /// <summary>
+        /// Processes the iterations.
+        /// </summary>
+        /// <param name="configuration">The configuration.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="comm">The comm.</param>
+        /// <returns></returns>
         public static void ProcessIterations(WatorConfiguration configuration, int[,] field, Intracommunicator comm)
         {
             DrawProgressInPercent(0, Iterations);
@@ -224,6 +240,12 @@ namespace wator.mpi
             }
         }
 
+        /// <summary>
+        /// Draws the progress in percent.
+        /// </summary>
+        /// <param name="currentItem">The current item.</param>
+        /// <param name="totalAmount">The total amount.</param>
+        /// <returns></returns>
         public static void DrawProgressInPercent(int currentItem, int totalAmount)
         {
             Console.Clear();
