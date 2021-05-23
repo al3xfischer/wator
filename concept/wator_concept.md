@@ -65,7 +65,18 @@ It cannot be naively parallelized because the decisions of animals in subfield b
 We decided to use a simple solution in which we divide the field by rows.
 By using this approach only two borders per subfield must be synchronized.
 
+![Geometric decomposition](./images/geometric_decomposition.drawio.png)
 
 # MPI Concept
 
+The master process assigns each worker process including itself a subfield.
+The first step is to calculate the local inner field.
+Then the local version of the last two rows are sent to the next worker
+which uses the information to calculate its upper border and sends back the result.
+The last two rows are sent because animals on the border can move backwards to the inner field.
+
+![MPI Parallelization](./images/mpi.drawio.png)
+
 # Multithreading Concept
+
+![Multithreading Parallelization](./images/multithreading.drawio.png)
