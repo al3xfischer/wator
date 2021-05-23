@@ -77,6 +77,13 @@ The last two rows are sent because animals on the border can move backwards to t
 
 ![MPI Parallelization](./images/mpi.drawio.png)
 
+## Communication
+The send and receive methods block code execution until the transmission is completed.
+It was a challenge to implement the communication so that no deadlocks are produced.
+That is because it is not easy to properly debug multi-process programs.
+Another problem that occurred during implementation was that efficient data-structures such as "Memory2D" do not feature the "Serializable" attribute.
+In consequence we were not able to use it as MPI is not able to de/serialize it. 
+
 \pagebreak
 # Multithreading Concept
 
@@ -85,3 +92,8 @@ Similar to the MPI concept each inner sub section is processed in parallel.
 Then the borders are calculated within their own thread.
 
 ![Multithreading Parallelization](./images/multithreading.drawio.png)
+
+## Coordination
+We had less challenge in the multithreading solution.
+That is due to the missing communication overhead, no deadlocks and easier debugging.
+Provided methods of the "System.Threading.Tasks.Parallel" namespace such as "Parallel.For(...)" kept the implementation simple.
