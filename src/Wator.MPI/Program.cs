@@ -16,10 +16,10 @@ namespace wator.mpi
         public const int Rows = 10_000;
         public const int Columns = 10_000;
 
-        public const int FishCount = 100_000;
-        public const int SharkCount = 100_000;
+        public const int FishCount = 1000_000;
+        public const int SharkCount = 500_000;
 
-        public const int Iterations = 20;
+        public const int Iterations = 1;
 
         private static void Main(string[] args)
         {
@@ -44,7 +44,7 @@ namespace wator.mpi
                     Console.WriteLine(subfield.GetLength(0));
                     //Console.WriteLine("got sub");
                     if (IsMaster()) stopwatch.Start();
-                    var subResult = ProcessIterion(config, subfield, comm);
+                    var subResult = ProcessIteration(config, subfield, comm);
                     //Console.WriteLine("calculated sub");
                     var results = comm.Gather(subResult, 0);
                     //Console.WriteLine("gathered subs");
@@ -59,9 +59,7 @@ namespace wator.mpi
                         stopwatch.Reset();
                     }
 
-                    //Console.WriteLine("merged subs");
-                    //Console.WriteLine(field);
-                    RenderField(field);
+                    //RenderField(field);
                     Console.WriteLine(iteration);
                 }
             }
@@ -79,10 +77,9 @@ namespace wator.mpi
 
         public static (int[,], WatorConfiguration) CreateField()
         {
-            var configuration = new WatorConfiguration { FishBreedTime = 1, Seed = 999 };
+            var configuration = new WatorConfiguration();
             var field = new FieldBuilder()
                 .WithConfiguration(configuration)
-                .WithSeed(101)
                 .WithDimensions(Rows, Columns)
                 .WithFishCount(FishCount)
                 .WithSharkCount(SharkCount)
@@ -143,7 +140,7 @@ namespace wator.mpi
             Console.ResetColor();
         }
 
-        private static int[,] ProcessIterion(WatorConfiguration configuration, int[,] field, Intracommunicator comm)
+        private static int[,] ProcessIteration(WatorConfiguration configuration, int[,] field, Intracommunicator comm)
         {
             //var args = new string[0];
             //using (new Environment(ref args))
@@ -222,7 +219,7 @@ namespace wator.mpi
             for (var i = 0; i < Iterations; i++)
             {
                 //ProcessIteration(simulation, splitBoundaries);
-                var iteratedField = ProcessIterion(configuration, field, comm);
+                var iteratedField = ProcessIteration(configuration, field, comm);
                 DrawProgressInPercent(i + 1, Iterations);
             }
         }
