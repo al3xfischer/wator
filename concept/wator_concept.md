@@ -97,3 +97,46 @@ Then the borders are calculated within their own thread.
 We had less challenge in the multithreading solution.
 That is due to the missing communication overhead, no deadlocks and easier debugging.
 Provided methods of the "System.Threading.Tasks.Parallel" namespace such as "Parallel.For(...)" kept the implementation simple.
+
+# Performance Analysis
+## System Specs
+| Hardware | Name              |
+| -------- | ----------------- |
+| CPU      | AMD Ryzen 7 2700X |
+| RAM      | 16 GB             |
+
+## Performance Data
+### MPI
+| Processing Units | Average in ms | 20 Iterations in ms |
+| ---------------- | ------------- | ------------------- |
+| 1                | 6,980         | 139,596             |
+| 2                | 40,108        | 812,160             |
+| 4                | 34,671        | 656,420             |
+| 8                | 16,700        | 334,400             |
+| 16               | 38,373        | 787,460             |
+| 32               | 62,770        | 1,245,400           |
+
+### Multithreading
+| Processing Units | Average in ms | 20 Iterations in ms |
+| ---------------- | ------------- | ------------------- |
+| 1                | 8,631         | 172,620             |
+| 2                | 4,768         | 96,361              |
+| 4                | 3,200         | 64,012              |
+| 8                | 2,675         | 53,616              |
+| 16               | 2,654         | 53,090              |
+| 32               | 2,655         | 53,118              |
+
+## Interpretation
+As displayed in the performance data above using MPI is significantly slower than multithreading.
+That may be due to the communication overhead MPI introduces.
+Each subfield is distributed over the network and finally gathered and merged by the master process.
+It can also be noticed that the MPI performance peaked when using 8 processes and decreased when using more processes.
+
+The multiprocessing approach performed better than the MPI one.
+Its performance increased upon reaching 8 threads and then stagnated.
+But the performance did no decrease while using more than 8 threads.
+It can be hypothesized that the multithreading approach performed better because no network communication is necessary.
+In addition multithreading runs in a single process an therefore the memory is shared among all threads.
+
+Performance data also showed a peak in both approaches when reaching 8 processing units.
+It could be argued that this number of processing units is optimal as the system CPU features 8 cores.
