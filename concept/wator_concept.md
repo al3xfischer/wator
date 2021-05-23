@@ -34,6 +34,35 @@ If no prey is found then a shark moves to an empty field otherwise it does not m
 Each chronon a shark loses energy and dies upon reaching zero.
 Sharks gain a fixed amount of energy when eating fish.
 Once it survived a certain amount of chronons a new shark is bred to an adjacent cell.
+Energy is distributed equally between the current and the new shark.
+
+# General Concept
+A two dimensional is used to represent the planet Wa-Tor.
+The array stores integer values to represent population.
+
+| Condition | Represented Content |
+| --------- | ------------------- |
+| cell < 0  | Shark               |
+| cell > 0  | Fish                |
+| cell = 0  | Water               |
+
+To model energy drain and aging the integer values are increased by one during each chronon.
+If a shark's energy increases its energy values moves towards zero (due to being negative) which means it starves.
+If a fish's value increases it simply means that it aged by one chronon.
+
+## Why integers?
+Prior to using integer values objects were used to represent population.
+That led to excessive memory usage.
+A 10,000 x 10,000 field filled with animal objects used approximately 4GB of memory.
+Switching to integers reduced the memory usage by a factor of ten.
+
+## Parallelization
+Geometric decomposition is used to process the field in parallel.
+The basic concept of that pattern is to split the field into subfields which are processed in parallel.
+It cannot be naively parallelized because the decisions of animals in subfield borders can affect other subfields.
+We decided to use a simple solution in which we divide the field by rows.
+By using this approach only two borders per subfield must be synchronized.
+
 
 # MPI Concept
 
