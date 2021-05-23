@@ -77,6 +77,11 @@ The last two rows are sent because animals on the border can move backwards to t
 
 ![MPI Parallelization](./images/mpi.drawio.png)
 
+\pagebreak
 # Multithreading Concept
+
+At the program start the field is split into sections and each thread is responsible for one section.
+Similar to the MPI concept each inner sub section is processed in parallel.
+Then the borders are calculated within their own thread.
 
 ![Multithreading Parallelization](./images/multithreading.drawio.png)
