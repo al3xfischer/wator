@@ -84,7 +84,6 @@ That is because it is not easy to properly debug multi-process programs.
 Another problem that occurred during implementation was that efficient data-structures such as "Memory2D" do not feature the "Serializable" attribute.
 In consequence we were not able to use it as MPI is not able to de/serialize it. 
 
-\pagebreak
 # Multithreading Concept
 
 At the program start the field is split into sections and each thread is responsible for one section.
@@ -105,6 +104,7 @@ Provided methods of the "System.Threading.Tasks.Parallel" namespace such as "Par
 | CPU      | AMD Ryzen 7 2700X |
 | RAM      | 16 GB             |
 
+\pagebreak
 ## Performance Data
 ### MPI
 | Processing Units | Average in ms | 20 Iterations in ms |
