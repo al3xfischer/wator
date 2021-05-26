@@ -136,7 +136,17 @@ The multiprocessing approach performed better than the MPI one.
 Its performance increased upon reaching 8 threads and then stagnated.
 But the performance did no decrease while using more than 8 threads.
 It can be hypothesized that the multithreading approach performed better because no network communication is necessary.
-In addition multithreading runs in a single process an therefore the memory is shared among all threads.
+In addition multithreading runs in a single process and therefore the memory is shared among all threads.
 
 Performance data also showed a peak in both approaches when reaching 8 processing units.
 It could be argued that this number of processing units is optimal as the system CPU features 8 cores.
+
+# Appendix
+
+![Class diagram core project](./images/ClassDiagram_Core.png)
+
+![Class diagram mpi project](./images/ClassDiagram_MPI.png)
+
+![Sequence diagram MPI](./images/mpi_sequence.drawio.png)
+
+![Sequence diagram Multithreading](./images/multithread_sequence.drawio.png)
